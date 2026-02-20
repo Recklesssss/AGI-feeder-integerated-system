@@ -1,0 +1,21 @@
+[workspace]
+resolver = "2"
+
+members = [
+    "crates/app",
+    "crates/cores",
+    "crates/infra",
+    "crates/shared",
+
+    "crates/domains/auth",
+    "crates/domains/users",
+    "crates/domains/rbac",
+    "crates/domains/organization",
+    "crates/domains/assets",
+    "crates/domains/finance",
+    "crates/domains/pms",
+    "crates/domains/rems",
+    "crates/domains/rms",
+
+    "crates/testing"
+]
