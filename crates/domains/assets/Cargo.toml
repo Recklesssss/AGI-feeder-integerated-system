@@ -6,5 +6,5 @@ edition = "2024"
 [dependencies]
 cores = { path = "../../cores" }
 shared = { path = "../../shared" }
-serde = { version = "1", features = ["derive"] }
+serde = { workspace = true }
 
