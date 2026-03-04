@@ -8,3 +8,6 @@ cores = { path = "../../cores" }
 shared = { path = "../../shared" }
 serde = { workspace = true }
 thiserror = { workspace = true }
+chrono = {workspace = true}
+uuid = {workspace = true}
+async-trait = {workspace = true}
