@@ -22,22 +22,3 @@ impl From<UserError> for AppError{
         
     }
 }
-
-impl From<AppError> for UserError {
-    fn from(err: AppError) -> Self {
-        match err {
-            AppError::DbError(_) => UserError::UserNotFound,
-            AppError::ConnectionTimeout(_) => UserError::UserNotFound,
-            AppError::UnAuthorized(_) => UserError::UserNotFound,
-            AppError::InvalidInput(msg) => {
-                if msg.contains("email") {
-                    UserError::InvalidEmailFormat
-                } else {
-                    UserError::ProfileIncomplete
-                }
-            },
-            AppError::StartupFailiure(_) => UserError::UserNotFound,
-            AppError::ConfigMissing(_) => UserError::UserNotFound,
-        }
-    }
-}
