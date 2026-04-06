@@ -5,5 +5,9 @@ edition = "2024"
 
 [dependencies]
 cores = { path = "../cores" }
+domains = { path = "../domains" }
 shared = { path = "../shared" }
 thiserror = { workspace = true }
+uuid = {workspace = true}
+sqlx = { workspace = true }
+uuid = {workspace = true}

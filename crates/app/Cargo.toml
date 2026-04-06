@@ -6,6 +6,7 @@ edition = "2024"
 [dependencies]
 axum = { workspace = true }
 tokio = { workspace = true }
+sqlx = { workspace = true }
 
 cores = { path = "../cores" }
 shared = { path = "../shared" }
