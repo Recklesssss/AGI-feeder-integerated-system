@@ -1,20 +1,23 @@
-use cores::app_error::AppError;
+use cores::AppError;
 
+/// Payload-bearing RBAC error variants (call sites pass descriptive messages).
+#[derive(Debug)]
 pub enum RbacError {
-    RoleNotFound,
-    PermissionNotFound,
-    RoleAlreadyAssigned,
-    PermissionDenied,
-    CannotDeleteSystemRole,
+    RoleNotFound(String),
+    PermissionNotFound(String),
+    RoleAlreadyAssigned(String),
+    PermissionDenied(String),
+    CannotDeleteSystemRole(String),
 }
-impl From<RbacError> for AppError{
-    fn from(err:RbacError)-> Self{
-        match err{
-            RbacError::CannotDeleteSystemRole => AppError::UnAuthorized("can't delete system role".into()),
-            RbacError::PermissionDenied => AppError::UnAuthorized("Access denied".into()),
-            RbacError::PermissionNotFound => AppError::InvalidInput("not authorized".into()),
-            RbacError::RoleAlreadyAssigned => AppError::InvalidInput("already assigned".into()),
-            RbacError::RoleNotFound => AppError::InvalidInput("Role is not found".into()),
+
+impl From<RbacError> for AppError {
+    fn from(err: RbacError) -> Self {
+        match err {
+            RbacError::CannotDeleteSystemRole(m) => AppError::Forbidden(m),
+            RbacError::PermissionDenied(m)       => AppError::Forbidden(m),
+            RbacError::PermissionNotFound(m)      => AppError::NotFound(m),
+            RbacError::RoleAlreadyAssigned(m)     => AppError::Conflict(m),
+            RbacError::RoleNotFound(m)            => AppError::NotFound(m),
         }
     }
 }
