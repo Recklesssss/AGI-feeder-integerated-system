@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use chrono::NaiveDate;
 use rust_decimal::Decimal;
 use uuid::Uuid;
-use core_lib::AppResult;
+use cores::AppResult;
 use super::model::Deal;
 
 #[async_trait]

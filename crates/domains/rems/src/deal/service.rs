@@ -2,17 +2,17 @@ use std::sync::Arc;
 use chrono::Local;
 use rust_decimal::Decimal;
 use uuid::Uuid;
-use core_lib::{AppError, AppResult};
-use shared_lib::pagination::{PaginationParams, PaginatedResponse};
+use cores::{AppError, AppResult};
+use shared::pagination::{PaginationParams, PaginatedResponse};
 use super::model::{Deal, DealStatus};
 use super::repository::DealRepository;
 
-pub struct DealService<R: DealRepository> {
-    repo: Arc<R>,
+pub struct DealService {
+    repo: Arc<dyn DealRepository>,
 }
 
-impl<R: DealRepository> DealService<R> {
-    pub fn new(repo: Arc<R>) -> Self { Self { repo } }
+impl DealService {
+    pub fn new(repo: Arc<dyn DealRepository>) -> Self { Self { repo } }
 
     pub async fn create(&self, org_id: Uuid, listing_id: Uuid, client_id: Uuid, agent_id: Option<Uuid>, deal_value: Decimal, notes: Option<&str>) -> AppResult<Deal> {
         if deal_value <= Decimal::ZERO { return Err(AppError::Validation("Deal value must be positive".into())); }

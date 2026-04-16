@@ -41,4 +41,5 @@ pub struct Listing {
     pub listed_at:       Option<NaiveDate>,
     pub created_at:      DateTime<Utc>,
     pub updated_at:      DateTime<Utc>,
+    pub deleted_at:      Option<DateTime<Utc>>,
 }

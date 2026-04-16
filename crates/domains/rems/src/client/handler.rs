@@ -1,4 +1,5 @@
-use axum::{extract::{State, Path, Query}, Json};
+use axum::extract::Query;
+use axum::{extract::{State, Path, }, Json};
 use std::sync::Arc;
 use uuid::Uuid;
 use serde::Deserialize;
@@ -32,7 +33,7 @@ pub async fn create(
         dto.email.as_deref(), dto.phone.as_deref(),
         dto.client_type, dto.source.as_deref(),
     ).await?;
-    Ok(Json(client.into()))
+    Ok(Json(client))
 }
 
 pub async fn get(
@@ -41,7 +42,7 @@ pub async fn get(
     Query(q): Query<OrgQuery>,
 ) -> AppResult<Json<ClientResponseDto>> {
     let c = svc.get(id, q.org_id).await?;
-    Ok(Json(c.into()))
+    Ok(Json(c))
 }
 
 /// Merged org + pagination into one struct — Axum only allows one extractor of each kind.
@@ -61,3 +62,4 @@ pub async fn delete(
 ) -> AppResult<()> {
     svc.delete(id, q.org_id).await
 }
+

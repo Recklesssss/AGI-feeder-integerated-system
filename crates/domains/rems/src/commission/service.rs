@@ -2,17 +2,17 @@ use std::sync::Arc;
 use chrono::NaiveDate;
 use rust_decimal::Decimal;
 use uuid::Uuid;
-use core_lib::{AppError, AppResult};
+use cores::{AppError, AppResult};
 use super::model::Commission;
 
 use super::repository::CommissionRepository;
 
-pub struct CommissionService<R: CommissionRepository> {
-    repo: Arc<R>,
+pub struct CommissionService {
+    repo: Arc<dyn CommissionRepository>,
 }
 
-impl<R: CommissionRepository> CommissionService<R> {
-    pub fn new(repo: Arc<R>) -> Self { Self { repo } }
+impl CommissionService {
+    pub fn new(repo: Arc<dyn CommissionRepository>) -> Self { Self { repo } }
 
     /// Calculate and record commission. If percentage given: amount = deal_value × pct.
     pub async fn calculate_and_create(
