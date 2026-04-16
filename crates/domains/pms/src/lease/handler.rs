@@ -1,16 +1,18 @@
-use axum::{extract::{State, Path, Query}, Json};
+use axum::extract::Query;
+use axum::{extract::{State, Path, }, Json};
 use uuid::Uuid;
-use crate::AppState;
-use core_lib::AppResult;
-use shared_lib::pagination::PaginationParams;
+use std::sync::Arc;
+use super::service::LeaseService;
+use cores::AppResult;
+use shared::pagination::PaginationParams;
 use super::dto::*;
 
 pub async fn create(
-    State(state): State<AppState>,
+    State(svc): State<Arc<LeaseService>>,
     Json(dto): Json<CreateLeaseDto>,
-) -> AppResult<Json<_>> {
+) -> AppResult<Json<serde_json::Value>> {
     Ok(Json(serde_json::json!(
-        state.lease_service.create(
+        svc.create(
             dto.org_id,
             dto.unit_id,
             dto.tenant_id,
@@ -26,40 +28,42 @@ pub async fn create(
 }
 
 pub async fn get(
-    State(state): State<AppState>,
+    State(svc): State<Arc<LeaseService>>,
     Path(id): Path<Uuid>,
     Query(q): Query<OrgQuery>,
-) -> AppResult<Json<_>> {
+) -> AppResult<Json<serde_json::Value>> {
     Ok(Json(serde_json::json!(
-        state.lease_service.get(id, q.org_id).await?
+        svc.get(id, q.org_id).await?
     )))
 }
 
 pub async fn list(
-    State(state): State<AppState>,
+    State(svc): State<Arc<LeaseService>>,
     Query(q): Query<OrgQuery>,
     Query(p): Query<PaginationParams>,
-) -> AppResult<Json<_>> {
+) -> AppResult<Json<serde_json::Value>> {
     Ok(Json(serde_json::json!(
-        state.lease_service.list(q.org_id, &p).await?
+        svc.list(q.org_id, &p).await?
     )))
 }
 
 pub async fn terminate(
-    State(state): State<AppState>,
+    State(svc): State<Arc<LeaseService>>,
     Path(id): Path<Uuid>,
     Query(q): Query<OrgQuery>,
-) -> AppResult<Json<_>> {
+) -> AppResult<Json<serde_json::Value>> {
     Ok(Json(serde_json::json!(
-        state.lease_service.terminate(id, q.org_id).await?
+        svc.terminate(id, q.org_id).await?
     )))
 }
 
 pub async fn expiring(
-    State(state): State<AppState>,
+    State(svc): State<Arc<LeaseService>>,
     Query(q): Query<ExpiringQuery>,
-) -> AppResult<Json<_>> {
+) -> AppResult<Json<serde_json::Value>> {
     Ok(Json(serde_json::json!(
-        state.lease_service.expiring_soon(q.org_id, q.within_days).await?
+        svc.expiring_soon(q.org_id, q.within_days).await?
     )))
 }
+
+

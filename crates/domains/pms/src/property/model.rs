@@ -8,8 +8,8 @@ pub struct Property {
     pub organization_id: Uuid,
     pub asset_id:        Uuid,
     pub address:         String,
-    pub city:            Option<String>,
-    pub country:         Option<String>,
+    pub property_type:   String,
     pub created_at:      DateTime<Utc>,
     pub updated_at:      DateTime<Utc>,
+    pub deleted_at:      Option<DateTime<Utc>>,
 }

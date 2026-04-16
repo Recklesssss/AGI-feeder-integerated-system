@@ -1,12 +1,13 @@
 use axum::{Router, routing::{get, post, put}};
 use axum::extract::FromRef;
-use crate::AppState;
+use std::sync::Arc;
+use super::service::UnitService;
 use super::handler;
 
 pub fn routes<S>() -> Router<S>
 where
     S: Clone + Send + Sync + 'static,
-    AppState: FromRef<S>,
+    Arc<UnitService>: FromRef<S>,
 {
     Router::new()
         .route("/", post(handler::create).get(handler::list_by_property))

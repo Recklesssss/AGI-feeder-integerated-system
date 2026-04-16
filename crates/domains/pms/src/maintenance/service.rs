@@ -1,16 +1,16 @@
 use std::sync::Arc;
 use rust_decimal::Decimal;
 use uuid::Uuid;
-use core_lib::{AppError, AppResult};
-use shared_lib::pagination::{PaginationParams, PaginatedResponse};
+use cores::{AppError, AppResult};
+use shared::pagination::{PaginationParams, PaginatedResponse};
 use super::{model::{MaintenanceRequest, MaintenanceStatus}, repository::MaintenanceRepository};
 
-pub struct MaintenanceService<R: MaintenanceRepository> {
-    repo: Arc<R>,
+pub struct MaintenanceService {
+    repo: Arc<dyn MaintenanceRepository>,
 }
 
-impl<R: MaintenanceRepository> MaintenanceService<R> {
-    pub fn new(repo: Arc<R>) -> Self { Self { repo } }
+impl MaintenanceService {
+    pub fn new(repo: Arc<dyn MaintenanceRepository>) -> Self { Self { repo } }
 
     pub async fn create(&self, org_id: Uuid, unit_id: Uuid, description: &str, priority: &str, reported_by: Option<Uuid>) -> AppResult<MaintenanceRequest> {
         if description.trim().is_empty() {

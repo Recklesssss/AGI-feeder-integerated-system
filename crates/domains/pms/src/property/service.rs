@@ -1,15 +1,15 @@
 use std::sync::Arc;
 use uuid::Uuid;
-use core_lib::{AppError, AppResult};
-use shared_lib::pagination::{PaginationParams, PaginatedResponse};
+use cores::{AppError, AppResult};
+use shared::pagination::{PaginationParams, PaginatedResponse};
 use super::{model::Property, repository::PropertyRepository};
 
-pub struct PropertyService<R: PropertyRepository> {
-    repo: Arc<R>,
+pub struct PropertyService {
+    repo: Arc<dyn PropertyRepository>,
 }
 
-impl<R: PropertyRepository> PropertyService<R> {
-    pub fn new(repo: Arc<R>) -> Self { Self { repo } }
+impl PropertyService {
+    pub fn new(repo: Arc<dyn PropertyRepository>) -> Self { Self { repo } }
 
     pub async fn create(&self, org_id: Uuid, asset_id: Uuid, address: &str, city: Option<&str>, country: Option<&str>) -> AppResult<Property> {
         if address.trim().is_empty() {

@@ -1,16 +1,18 @@
-use axum::{extract::{State, Path, Query}, Json};
+use axum::extract::Query;
+use axum::{extract::{State, Path, }, Json};
 use uuid::Uuid;
-use crate::AppState;
-use core_lib::AppResult;
-use shared_lib::pagination::PaginationParams;
+use std::sync::Arc;
+use super::service::TenantService;
+use cores::AppResult;
+use shared::pagination::PaginationParams;
 use super::dto::*;
 
 pub async fn create(
-    State(state): State<AppState>,
+    State(svc): State<Arc<TenantService>>,
     Json(dto): Json<CreateTenantDto>,
-) -> AppResult<Json<_>> {
+) -> AppResult<Json<serde_json::Value>> {
     Ok(Json(serde_json::json!(
-        state.tenant_service.create(
+        svc.create(
             dto.org_id,
             &dto.name,
             dto.email.as_deref(),
@@ -21,30 +23,32 @@ pub async fn create(
 }
 
 pub async fn get(
-    State(state): State<AppState>,
+    State(svc): State<Arc<TenantService>>,
     Path(id): Path<Uuid>,
     Query(q): Query<OrgQuery>,
-) -> AppResult<Json<_>> {
+) -> AppResult<Json<serde_json::Value>> {
     Ok(Json(serde_json::json!(
-        state.tenant_service.get(id, q.org_id).await?
+        svc.get(id, q.org_id).await?
     )))
 }
 
 pub async fn list(
-    State(state): State<AppState>,
+    State(svc): State<Arc<TenantService>>,
     Query(q): Query<OrgQuery>,
     Query(p): Query<PaginationParams>,
-) -> AppResult<Json<_>> {
+) -> AppResult<Json<serde_json::Value>> {
     Ok(Json(serde_json::json!(
-        state.tenant_service.list(q.org_id, &p).await?
+        svc.list(q.org_id, &p).await?
     )))
 }
 
 pub async fn delete(
-    State(state): State<AppState>,
+    State(svc): State<Arc<TenantService>>,
     Path(id): Path<Uuid>,
     Query(q): Query<OrgQuery>,
 ) -> AppResult<()> {
-    state.tenant_service.delete(id, q.org_id).await?;
+    svc.delete(id, q.org_id).await?;
     Ok(())
 }
+
+

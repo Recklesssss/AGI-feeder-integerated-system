@@ -1,16 +1,18 @@
-use axum::{extract::{State, Path, Query}, Json};
+use axum::extract::Query;
+use axum::{extract::{State, Path, }, Json};
 use uuid::Uuid;
-use crate::AppState;
-use core_lib::AppResult;
-use shared_lib::pagination::PaginationParams;
+use std::sync::Arc;
+use super::service::UnitService;
+use cores::AppResult;
+use shared::pagination::PaginationParams;
 use super::dto::*;
 
 pub async fn create(
-    State(state): State<AppState>,
+    State(svc): State<Arc<UnitService>>,
     Json(dto): Json<CreateUnitDto>,
-) -> AppResult<Json<_>> {
+) -> AppResult<Json<serde_json::Value>> {
     Ok(Json(serde_json::json!(
-        state.unit_service.create(
+        svc.create(
             dto.org_id,
             dto.property_id,
             dto.asset_id,
@@ -24,50 +26,52 @@ pub async fn create(
 }
 
 pub async fn get(
-    State(state): State<AppState>,
+    State(svc): State<Arc<UnitService>>,
     Path(id): Path<Uuid>,
     Query(q): Query<OrgQuery>,
-) -> AppResult<Json<_>> {
+) -> AppResult<Json<serde_json::Value>> {
     Ok(Json(serde_json::json!(
-        state.unit_service.get(id, q.org_id).await?
+        svc.get(id, q.org_id).await?
     )))
 }
 
 pub async fn list_by_property(
-    State(state): State<AppState>,
+    State(svc): State<Arc<UnitService>>,
     Query(q): Query<PropertyQuery>,
     Query(p): Query<PaginationParams>,
-) -> AppResult<Json<_>> {
+) -> AppResult<Json<serde_json::Value>> {
     Ok(Json(serde_json::json!(
-        state.unit_service.list_by_property(q.property_id, &p).await?
+        svc.list_by_property(q.property_id, &p).await?
     )))
 }
 
 pub async fn mark_occupied(
-    State(state): State<AppState>,
+    State(svc): State<Arc<UnitService>>,
     Path(id): Path<Uuid>,
     Query(q): Query<OrgQuery>,
-) -> AppResult<Json<_>> {
+) -> AppResult<Json<serde_json::Value>> {
     Ok(Json(serde_json::json!(
-        state.unit_service.mark_occupied(id, q.org_id).await?
+        svc.mark_occupied(id, q.org_id).await?
     )))
 }
 
 pub async fn mark_vacant(
-    State(state): State<AppState>,
+    State(svc): State<Arc<UnitService>>,
     Path(id): Path<Uuid>,
     Query(q): Query<OrgQuery>,
-) -> AppResult<Json<_>> {
+) -> AppResult<Json<serde_json::Value>> {
     Ok(Json(serde_json::json!(
-        state.unit_service.mark_vacant(id, q.org_id).await?
+        svc.mark_vacant(id, q.org_id).await?
     )))
 }
 
 pub async fn vacancy_count(
-    State(state): State<AppState>,
+    State(svc): State<Arc<UnitService>>,
     Query(q): Query<PropertyQuery>,
-) -> AppResult<Json<_>> {
+) -> AppResult<Json<serde_json::Value>> {
     Ok(Json(serde_json::json!(
-        state.unit_service.vacancy_count(q.property_id).await?
+        svc.vacancy_count(q.property_id).await?
     )))
 }
+
+

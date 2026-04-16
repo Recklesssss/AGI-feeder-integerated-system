@@ -1,16 +1,18 @@
-use axum::{extract::{State, Path, Query}, Json};
+use axum::extract::Query;
+use axum::{extract::{State, Path, }, Json};
 use uuid::Uuid;
-use crate::AppState;
-use core_lib::AppResult;
-use shared_lib::pagination::PaginationParams;
+use std::sync::Arc;
+use super::service::MaintenanceService;
+use cores::AppResult;
+use shared::pagination::PaginationParams;
 use super::dto::*;
 
 pub async fn create(
-    State(state): State<AppState>,
+    State(svc): State<Arc<MaintenanceService>>,
     Json(dto): Json<CreateMaintenanceDto>,
-) -> AppResult<Json<_>> {
+) -> AppResult<Json<serde_json::Value>> {
     Ok(Json(serde_json::json!(
-        state.maintenance_service.create(
+        svc.create(
             dto.org_id,
             dto.unit_id,
             &dto.description,
@@ -21,51 +23,53 @@ pub async fn create(
 }
 
 pub async fn get(
-    State(state): State<AppState>,
+    State(svc): State<Arc<MaintenanceService>>,
     Path(id): Path<Uuid>,
     Query(q): Query<OrgQuery>,
-) -> AppResult<Json<_>> {
+) -> AppResult<Json<serde_json::Value>> {
     Ok(Json(serde_json::json!(
-        state.maintenance_service.get(id, q.org_id).await?
+        svc.get(id, q.org_id).await?
     )))
 }
 
 pub async fn list(
-    State(state): State<AppState>,
+    State(svc): State<Arc<MaintenanceService>>,
     Query(q): Query<OrgQuery>,
     Query(p): Query<PaginationParams>,
-) -> AppResult<Json<_>> {
+) -> AppResult<Json<serde_json::Value>> {
     Ok(Json(serde_json::json!(
-        state.maintenance_service.list(q.org_id, &p).await?
+        svc.list(q.org_id, &p).await?
     )))
 }
 
 pub async fn assign(
-    State(state): State<AppState>,
+    State(svc): State<Arc<MaintenanceService>>,
     Path(id): Path<Uuid>,
     Json(dto): Json<AssignDto>,
-) -> AppResult<Json<_>> {
+) -> AppResult<Json<serde_json::Value>> {
     Ok(Json(serde_json::json!(
-        state.maintenance_service.assign(id, dto.org_id, dto.user_id).await?
+        svc.assign(id, dto.org_id, dto.user_id).await?
     )))
 }
 
 pub async fn resolve(
-    State(state): State<AppState>,
+    State(svc): State<Arc<MaintenanceService>>,
     Path(id): Path<Uuid>,
     Json(dto): Json<ResolveDto>,
-) -> AppResult<Json<_>> {
+) -> AppResult<Json<serde_json::Value>> {
     Ok(Json(serde_json::json!(
-        state.maintenance_service.resolve(id, dto.org_id, dto.actual_cost).await?
+        svc.resolve(id, dto.org_id, dto.actual_cost).await?
     )))
 }
 
 pub async fn close(
-    State(state): State<AppState>,
+    State(svc): State<Arc<MaintenanceService>>,
     Path(id): Path<Uuid>,
     Query(q): Query<OrgQuery>,
-) -> AppResult<Json<_>> {
+) -> AppResult<Json<serde_json::Value>> {
     Ok(Json(serde_json::json!(
-        state.maintenance_service.close(id, q.org_id).await?
+        svc.close(id, q.org_id).await?
     )))
 }
+
+

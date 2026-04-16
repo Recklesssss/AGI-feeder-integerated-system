@@ -1,16 +1,16 @@
 use std::sync::Arc;
 use rust_decimal::Decimal;
 use uuid::Uuid;
-use core_lib::{AppError, AppResult};
-use shared_lib::pagination::{PaginationParams, PaginatedResponse};
+use cores::{AppError, AppResult};
+use shared::pagination::{PaginationParams, PaginatedResponse};
 use super::{model::{Unit, UnitStatus}, repository::UnitRepository};
 
-pub struct UnitService<R: UnitRepository> {
-    repo: Arc<R>,
+pub struct UnitService {
+    repo: Arc<dyn UnitRepository>,
 }
 
-impl<R: UnitRepository> UnitService<R> {
-    pub fn new(repo: Arc<R>) -> Self { Self { repo } }
+impl UnitService {
+    pub fn new(repo: Arc<dyn UnitRepository>) -> Self { Self { repo } }
 
     pub async fn create(&self, org_id: Uuid, property_id: Uuid, asset_id: Uuid, unit_number: &str, floor: Option<i32>, bedrooms: Option<i32>, bathrooms: Option<i32>, area_sqm: Option<Decimal>) -> AppResult<Unit> {
         self.repo.create(org_id, property_id, asset_id, unit_number, floor, bedrooms, bathrooms, area_sqm).await

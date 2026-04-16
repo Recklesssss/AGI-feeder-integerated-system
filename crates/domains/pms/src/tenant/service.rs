@@ -1,15 +1,15 @@
 use std::sync::Arc;
 use uuid::Uuid;
-use core_lib::{AppError, AppResult};
-use shared_lib::pagination::{PaginationParams, PaginatedResponse};
+use cores::{AppError, AppResult};
+use shared::pagination::{PaginationParams, PaginatedResponse};
 use super::{model::Tenant, repository::TenantRepository};
 
-pub struct TenantService<R: TenantRepository> {
-    repo: Arc<R>,
+pub struct TenantService {
+    repo: Arc<dyn TenantRepository>,
 }
 
-impl<R: TenantRepository> TenantService<R> {
-    pub fn new(repo: Arc<R>) -> Self { Self { repo } }
+impl TenantService {
+    pub fn new(repo: Arc<dyn TenantRepository>) -> Self { Self { repo } }
 
     pub async fn create(&self, org_id: Uuid, name: &str, email: Option<&str>, phone: Option<&str>, national_id: Option<&str>) -> AppResult<Tenant> {
         if name.trim().is_empty() {

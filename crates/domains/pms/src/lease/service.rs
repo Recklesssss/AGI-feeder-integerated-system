@@ -2,16 +2,16 @@ use std::sync::Arc;
 use chrono::NaiveDate;
 use rust_decimal::Decimal;
 use uuid::Uuid;
-use core_lib::{AppError, AppResult};
-use shared_lib::pagination::{PaginationParams, PaginatedResponse};
+use cores::{AppError, AppResult};
+use shared::pagination::{PaginationParams, PaginatedResponse};
 use super::{model::{Lease, LeaseStatus}, repository::LeaseRepository};
 
-pub struct LeaseService<R: LeaseRepository> {
-    repo: Arc<R>,
+pub struct LeaseService {
+    repo: Arc<dyn LeaseRepository>,
 }
 
-impl<R: LeaseRepository> LeaseService<R> {
-    pub fn new(repo: Arc<R>) -> Self { Self { repo } }
+impl LeaseService {
+    pub fn new(repo: Arc<dyn LeaseRepository>) -> Self { Self { repo } }
 
     pub async fn create(
         &self, org_id: Uuid, unit_id: Uuid, tenant_id: Uuid,
