@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use rust_decimal::Decimal;
 use uuid::Uuid;
-use core_lib::AppResult;
+use cores::AppResult;
 use super::model::MenuItem;
 
 #[async_trait]

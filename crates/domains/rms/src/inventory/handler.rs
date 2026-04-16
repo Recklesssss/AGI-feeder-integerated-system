@@ -1,15 +1,24 @@
-use axum::{extract::{State, Path, Query}, Json};
+use axum::extract::Query;
+use axum::{extract::{State, Path, }, Json};
 use uuid::Uuid;
-use crate::AppState;
-use core_lib::AppResult;
-use super::dto::*;
+use std::sync::Arc;
+use super::service::InventoryService;
+use cores::AppResult;
+use serde::Deserialize;
+use crate::menu::handler::RestaurantQuery;
+
+#[derive(Deserialize)]
+pub struct CreateInventoryDto { pub restaurant_id: Uuid, pub name: String, pub unit: String, pub reorder_level: rust_decimal::Decimal, pub cost_per_unit: rust_decimal::Decimal }
+
+#[derive(Deserialize)]
+pub struct AdjustDto { pub delta: rust_decimal::Decimal, pub reason: Option<String> }
 
 pub async fn create(
-    State(state): State<AppState>,
+    State(svc): State<Arc<InventoryService>>,
     Json(dto): Json<CreateInventoryDto>,
 ) -> AppResult<Json<serde_json::Value>> {
     Ok(Json(serde_json::json!(
-        state.inventory_service.create(
+        svc.create(
             dto.restaurant_id,
             &dto.name,
             &dto.unit,
@@ -20,38 +29,40 @@ pub async fn create(
 }
 
 pub async fn get(
-    State(state): State<AppState>,
+    State(svc): State<Arc<InventoryService>>,
     Path(id): Path<Uuid>,
 ) -> AppResult<Json<serde_json::Value>> {
     Ok(Json(serde_json::json!(
-        state.inventory_service.get(id).await?
+        svc.get(id).await?
     )))
 }
 
 pub async fn list_by_restaurant(
-    State(state): State<AppState>,
+    State(svc): State<Arc<InventoryService>>,
     Query(q): Query<RestaurantQuery>,
 ) -> AppResult<Json<serde_json::Value>> {
     Ok(Json(serde_json::json!(
-        state.inventory_service.list_by_restaurant(q.restaurant_id).await?
+        svc.list_by_restaurant(q.restaurant_id).await?
     )))
 }
 
 pub async fn low_stock(
-    State(state): State<AppState>,
+    State(svc): State<Arc<InventoryService>>,
     Query(q): Query<RestaurantQuery>,
 ) -> AppResult<Json<serde_json::Value>> {
     Ok(Json(serde_json::json!(
-        state.inventory_service.low_stock_alerts(q.restaurant_id).await?
+        svc.low_stock_alerts(q.restaurant_id).await?
     )))
 }
 
 pub async fn adjust(
-    State(state): State<AppState>,
+    State(svc): State<Arc<InventoryService>>,
     Path(id): Path<Uuid>,
     Json(dto): Json<AdjustDto>,
 ) -> AppResult<Json<serde_json::Value>> {
     Ok(Json(serde_json::json!(
-        state.inventory_service.adjust(id, dto.delta).await?
+        svc.adjust(id, dto.delta).await?
     )))
 }
+
+

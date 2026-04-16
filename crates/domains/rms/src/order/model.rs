@@ -46,7 +46,7 @@ pub struct Order {
 }
 
 /// POS new order input
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct NewOrderItem {
     pub menu_item_id: Uuid,
     pub quantity:     i32,

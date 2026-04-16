@@ -14,6 +14,7 @@ pub struct InventoryItem {
     pub cost_per_unit: Decimal,
     pub created_at:    DateTime<Utc>,
     pub updated_at:    DateTime<Utc>,
+    pub deleted_at:    Option<DateTime<Utc>>,
 }
 
 impl InventoryItem {

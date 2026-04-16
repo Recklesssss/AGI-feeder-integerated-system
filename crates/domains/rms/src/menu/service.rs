@@ -1,16 +1,16 @@
 use std::sync::Arc;
 use rust_decimal::Decimal;
 use uuid::Uuid;
-use core_lib::{AppError, AppResult};
-use shared_lib::pagination::{PaginationParams, PaginatedResponse};
+use cores::{AppError, AppResult};
+use shared::pagination::{PaginationParams, PaginatedResponse};
 use super::{model::MenuItem, repository::MenuRepository};
 
-pub struct MenuService<R: MenuRepository> {
-    repo: Arc<R>,
+pub struct MenuService {
+    repo: Arc<dyn MenuRepository>,
 }
 
-impl<R: MenuRepository> MenuService<R> {
-    pub fn new(repo: Arc<R>) -> Self { Self { repo } }
+impl MenuService {
+    pub fn new(repo: Arc<dyn MenuRepository>) -> Self { Self { repo } }
 
     pub async fn create(&self, restaurant_id: Uuid, name: &str, description: Option<&str>, category: Option<&str>, price: Decimal, cost: Decimal) -> AppResult<MenuItem> {
         if name.trim().is_empty() { return Err(AppError::Validation("Item name is required".into())); }

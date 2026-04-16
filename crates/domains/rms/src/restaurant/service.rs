@@ -1,15 +1,15 @@
 use std::sync::Arc;
 use uuid::Uuid;
-use core_lib::{AppError, AppResult};
-use shared_lib::pagination::{PaginationParams, PaginatedResponse};
+use cores::{AppError, AppResult};
+use shared::pagination::{PaginationParams, PaginatedResponse};
 use super::{model::Restaurant, repository::RestaurantRepository};
 
-pub struct RestaurantService<R: RestaurantRepository> {
-    repo: Arc<R>,
+pub struct RestaurantService {
+    repo: Arc<dyn RestaurantRepository>,
 }
 
-impl<R: RestaurantRepository> RestaurantService<R> {
-    pub fn new(repo: Arc<R>) -> Self { Self { repo } }
+impl RestaurantService {
+    pub fn new(repo: Arc<dyn RestaurantRepository>) -> Self { Self { repo } }
 
     pub async fn create(&self, org_id: Uuid, asset_id: Uuid, name: &str, address: Option<&str>) -> AppResult<Restaurant> {
         if name.trim().is_empty() { return Err(AppError::Validation("Restaurant name is required".into())); }

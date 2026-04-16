@@ -1,15 +1,15 @@
 use std::sync::Arc;
 use rust_decimal::Decimal;
 use uuid::Uuid;
-use core_lib::{AppError, AppResult};
+use cores::{AppError, AppResult};
 use super::{model::InventoryItem, repository::InventoryRepository};
 
-pub struct InventoryService<R: InventoryRepository> {
-    repo: Arc<R>,
+pub struct InventoryService {
+    repo: Arc<dyn InventoryRepository>,
 }
 
-impl<R: InventoryRepository> InventoryService<R> {
-    pub fn new(repo: Arc<R>) -> Self { Self { repo } }
+impl InventoryService {
+    pub fn new(repo: Arc<dyn InventoryRepository>) -> Self { Self { repo } }
 
     pub async fn create(&self, restaurant_id: Uuid, name: &str, unit: &str, reorder_level: Decimal, cost_per_unit: Decimal) -> AppResult<InventoryItem> {
         if name.trim().is_empty()  { return Err(AppError::Validation("Item name required".into())); }

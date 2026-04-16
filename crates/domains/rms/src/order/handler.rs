@@ -1,16 +1,32 @@
-use axum::{extract::{State, Path, Query}, Json};
+use axum::extract::Query;
+use axum::{extract::{State, Path, }, Json};
 use uuid::Uuid;
-use crate::AppState;
-use core_lib::AppResult;
-use shared_lib::pagination::PaginationParams;
-use super::dto::*;
+use std::sync::Arc;
+use super::service::OrderService;
+use cores::AppResult;
+use shared::pagination::PaginationParams;
+use serde::Deserialize;
+#[derive(Deserialize)]
+pub struct OpenOrderDto { pub org_id: Uuid, pub restaurant_id: Uuid, pub table_number: Option<String>, pub notes: Option<String>, pub opened_by: Option<Uuid>, pub items: Vec<crate::order::model::NewOrderItem> }
+#[derive(Deserialize)]
+pub struct OrgQuery { pub org_id: Uuid }
+#[derive(Deserialize)]
+pub struct ListOrderQuery { pub org_id: Uuid, pub restaurant_id: Option<Uuid>, pub limit: Option<i64>, pub offset: Option<i64> }
+#[derive(Deserialize)]
+pub struct RevenueQuery { pub org_id: Uuid, pub restaurant_id: Uuid, pub date: chrono::NaiveDate }
+#[derive(Deserialize)]
+pub struct RestaurantQuery { pub restaurant_id: Uuid }
+#[derive(Deserialize)]
+pub struct CreateOrderDto { pub org_id: Uuid, pub restaurant_id: Uuid, pub table_number: Option<String>, pub notes: Option<String> }
+#[derive(Deserialize)]
+pub struct CloseOrderDto { pub tax_rate: rust_decimal::Decimal, pub service_charge_rate: rust_decimal::Decimal, pub discount: rust_decimal::Decimal, pub payment_method: String, pub org_id: Uuid, pub closed_by: Option<Uuid> }
 
 pub async fn open_order(
-    State(state): State<AppState>,
+    State(svc): State<Arc<OrderService>>,
     Json(dto): Json<OpenOrderDto>,
-) -> AppResult<Json<_>> {
+) -> AppResult<Json<serde_json::Value>> {
     Ok(Json(serde_json::json!(
-        state.order_service.open_order(
+        svc.open_order(
             dto.org_id,
             dto.restaurant_id,
             dto.table_number.as_deref(),
@@ -22,12 +38,12 @@ pub async fn open_order(
 }
 
 pub async fn close_order(
-    State(state): State<AppState>,
+    State(svc): State<Arc<OrderService>>,
     Path(id): Path<Uuid>,
     Json(dto): Json<CloseOrderDto>,
-) -> AppResult<Json<_>> {
+) -> AppResult<Json<serde_json::Value>> {
     Ok(Json(serde_json::json!(
-        state.order_service.close_order(
+        svc.close_order(
             id,
             dto.org_id,
             dto.tax_rate,
@@ -40,40 +56,42 @@ pub async fn close_order(
 }
 
 pub async fn cancel(
-    State(state): State<AppState>,
+    State(svc): State<Arc<OrderService>>,
     Path(id): Path<Uuid>,
     Query(q): Query<OrgQuery>,
-) -> AppResult<Json<_>> {
+) -> AppResult<Json<serde_json::Value>> {
     Ok(Json(serde_json::json!(
-        state.order_service.cancel(id, q.org_id).await?
+        svc.cancel(id, q.org_id).await?
     )))
 }
 
 pub async fn get(
-    State(state): State<AppState>,
+    State(svc): State<Arc<OrderService>>,
     Path(id): Path<Uuid>,
     Query(q): Query<OrgQuery>,
-) -> AppResult<Json<_>> {
+) -> AppResult<Json<serde_json::Value>> {
     Ok(Json(serde_json::json!(
-        state.order_service.get(id, q.org_id).await?
+        svc.get(id, q.org_id).await?
     )))
 }
 
 pub async fn list(
-    State(state): State<AppState>,
+    State(svc): State<Arc<OrderService>>,
     Query(q): Query<ListOrderQuery>,
     Query(p): Query<PaginationParams>,
-) -> AppResult<Json<_>> {
+) -> AppResult<Json<serde_json::Value>> {
     Ok(Json(serde_json::json!(
-        state.order_service.list(q.org_id, q.restaurant_id, &p).await?
+        svc.list(q.org_id, q.restaurant_id, &p).await?
     )))
 }
 
 pub async fn daily_revenue(
-    State(state): State<AppState>,
+    State(svc): State<Arc<OrderService>>,
     Query(q): Query<RevenueQuery>,
-) -> AppResult<Json<_>> {
+) -> AppResult<Json<serde_json::Value>> {
     Ok(Json(serde_json::json!(
-        state.order_service.daily_revenue(q.org_id, q.restaurant_id, q.date).await?
+        svc.daily_revenue(q.org_id, q.restaurant_id, q.date).await?
     )))
 }
+
+

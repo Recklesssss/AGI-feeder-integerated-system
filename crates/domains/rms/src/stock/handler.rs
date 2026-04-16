@@ -1,15 +1,17 @@
-use axum::{extract::{State, Path, Query}, Json};
+use axum::extract::Query;
+use axum::{extract::{State, Path, }, Json};
 use uuid::Uuid;
-use crate::AppState;
-use core_lib::AppResult;
+use std::sync::Arc;
+use super::service::StockService;
+use cores::AppResult;
 use super::dto::*;
 
 pub async fn record(
-    State(state): State<AppState>,
+    State(svc): State<Arc<StockService>>,
     Json(dto): Json<RecordStockDto>,
-) -> AppResult<Json<_>> {
+) -> AppResult<Json<serde_json::Value>> {
     Ok(Json(serde_json::json!(
-        state.stock_service.record_movement(
+        svc.record_movement(
             dto.inventory_item_id,
             dto.quantity,
             dto.movement_type,
@@ -22,20 +24,22 @@ pub async fn record(
 }
 
 pub async fn history(
-    State(state): State<AppState>,
+    State(svc): State<Arc<StockService>>,
     Path(id): Path<Uuid>,
     Query(q): Query<HistoryQuery>,
-) -> AppResult<Json<_>> {
+) -> AppResult<Json<serde_json::Value>> {
     Ok(Json(serde_json::json!(
-        state.stock_service.history(id, q.limit, q.offset).await?
+        svc.history(id, q.limit, q.offset).await?
     )))
 }
 
 pub async fn waste_report(
-    State(state): State<AppState>,
+    State(svc): State<Arc<StockService>>,
     Query(q): Query<WasteQuery>,
-) -> AppResult<Json<_>> {
+) -> AppResult<Json<serde_json::Value>> {
     Ok(Json(serde_json::json!(
-        state.stock_service.waste_report(q.restaurant_id, q.from, q.to).await?
+        svc.waste_report(q.restaurant_id, q.from, q.to).await?
     )))
 }
+
+

@@ -1,12 +1,13 @@
-use axum::{Router, routing::{get, post, put, delete}};
+use axum::{Router, routing::{get, post, put}};
 use axum::extract::FromRef;
-use crate::AppState;
+use std::sync::Arc;
+use super::service::OrderService;
 use super::handler;
 
 pub fn routes<S>() -> Router<S>
 where
     S: Clone + Send + Sync + 'static,
-    AppState: FromRef<S>,
+    Arc<OrderService>: FromRef<S>,
 {
     Router::new()
         .route("/", post(handler::open_order).get(handler::list))

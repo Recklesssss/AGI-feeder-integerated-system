@@ -1,13 +1,26 @@
-use axum::{routing::get, Router, Json};
-use serde_json::Value;
+use axum::Router;
+use axum::extract::FromRef;
+use std::sync::Arc;
 
-pub fn routes() -> Router {
+use crate::restaurant::service::RestaurantService;
+use crate::menu::service::MenuService;
+use crate::order::service::OrderService;
+use crate::inventory::service::InventoryService;
+use crate::stock::service::StockService;
+
+pub fn routes<S>() -> Router<S>
+where
+    S: Clone + Send + Sync + 'static,
+    Arc<RestaurantService>: FromRef<S>,
+    Arc<MenuService>: FromRef<S>,
+    Arc<OrderService>: FromRef<S>,
+    Arc<InventoryService>: FromRef<S>,
+    Arc<StockService>: FromRef<S>,
+{
     Router::new()
-        .route("/", get(list_rentals))
-}
-
-async fn list_rentals() -> Json<Value> {
-    Json(serde_json::json!({
-        "message": "RMS module is active. Rental listing pending full implementation."
-    }))
+        .nest("/restaurants", crate::restaurant::router::routes())
+        .nest("/menus", crate::menu::router::routes())
+        .nest("/orders", crate::order::router::routes())
+        .nest("/inventory", crate::inventory::router::routes())
+        .nest("/stock", crate::stock::router::routes())
 }

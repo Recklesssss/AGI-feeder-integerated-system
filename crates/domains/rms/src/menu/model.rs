@@ -15,6 +15,7 @@ pub struct MenuItem {
     pub is_available:  bool,
     pub created_at:    DateTime<Utc>,
     pub updated_at:    DateTime<Utc>,
+    pub deleted_at:    Option<DateTime<Utc>>,
 }
 
 impl MenuItem {

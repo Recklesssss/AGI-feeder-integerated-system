@@ -2,18 +2,18 @@ use std::sync::Arc;
 use rust_decimal::Decimal;
 use uuid::Uuid;
 use chrono::NaiveDate;
-use core_lib::{AppError, AppResult};
+use cores::{AppError, AppResult};
 use super::model::{StockMovement, MovementType};
 use super::repository::StockRepository;
-use crate::rms::inventory::repository::InventoryRepository;
+use crate::inventory::repository::InventoryRepository;
 
-pub struct StockService<S: StockRepository, I: InventoryRepository> {
-    stock_repo:     Arc<S>,
-    inventory_repo: Arc<I>,
+pub struct StockService {
+    stock_repo:     Arc<dyn StockRepository>,
+    inventory_repo: Arc<dyn InventoryRepository>,
 }
 
-impl<S: StockRepository, I: InventoryRepository> StockService<S, I> {
-    pub fn new(stock_repo: Arc<S>, inventory_repo: Arc<I>) -> Self {
+impl StockService {
+    pub fn new(stock_repo: Arc<dyn StockRepository>, inventory_repo: Arc<dyn InventoryRepository>) -> Self {
         Self { stock_repo, inventory_repo }
     }
 

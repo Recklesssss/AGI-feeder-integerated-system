@@ -2,19 +2,19 @@ use std::sync::Arc;
 use rust_decimal::Decimal;
 use uuid::Uuid;
 use chrono::NaiveDate;
-use core_lib::{AppError, AppResult};
-use shared_lib::pagination::{PaginationParams, PaginatedResponse};
+use cores::{AppError, AppResult};
+use shared::pagination::{PaginationParams, PaginatedResponse};
 use super::model::{Order, NewOrderItem, OrderStatus};
 use super::repository::OrderRepository;
-use crate::rms::menu::repository::MenuRepository;
+use crate::menu::repository::MenuRepository;
 
-pub struct OrderService<O: OrderRepository, M: MenuRepository> {
-    order_repo: Arc<O>,
-    menu_repo:  Arc<M>,
+pub struct OrderService {
+    order_repo: Arc<dyn OrderRepository>,
+    menu_repo:  Arc<dyn MenuRepository>,
 }
 
-impl<O: OrderRepository, M: MenuRepository> OrderService<O, M> {
-    pub fn new(order_repo: Arc<O>, menu_repo: Arc<M>) -> Self {
+impl OrderService {
+    pub fn new(order_repo: Arc<dyn OrderRepository>, menu_repo: Arc<dyn MenuRepository>) -> Self {
         Self { order_repo, menu_repo }
     }
 
@@ -51,7 +51,7 @@ impl<O: OrderRepository, M: MenuRepository> OrderService<O, M> {
 
         // Re-fetch with items
         self.order_repo.find_by_id(order.id, org_id).await?
-            .ok_or_else(|| AppError::Internal("Order disappeared after creation".into()))
+            .ok_or_else(|| AppError::DbError("Order disappeared after creation".into()))
     }
 
     /// Close (pay) an order. Calculates totals, records payment.

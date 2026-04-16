@@ -1,16 +1,26 @@
-use axum::{extract::{State, Path, Query}, Json};
+use axum::extract::Query;
+use axum::{extract::{State, Path, }, Json};
 use uuid::Uuid;
-use crate::AppState;
-use core_lib::AppResult;
-use shared_lib::pagination::PaginationParams;
-use super::dto::*;
+use std::sync::Arc;
+use super::service::MenuService;
+use cores::AppResult;
+use shared::pagination::PaginationParams;
+use serde::Deserialize;
+#[derive(Deserialize)]
+pub struct RestaurantQuery { pub restaurant_id: Uuid }
+#[derive(Deserialize)]
+pub struct CreateMenuDto { pub restaurant_id: Uuid, pub name: String, pub description: Option<String>, pub category: Option<String>, pub price: rust_decimal::Decimal, pub cost: rust_decimal::Decimal }
+#[derive(Deserialize)]
+pub struct SetAvailableDto { pub available: bool }
+#[derive(Deserialize)]
+pub struct UpdatePriceDto { pub price: rust_decimal::Decimal }
 
 pub async fn create(
-    State(state): State<AppState>,
+    State(svc): State<Arc<MenuService>>,
     Json(dto): Json<CreateMenuDto>,
-) -> AppResult<Json<_>> {
+) -> AppResult<Json<serde_json::Value>> {
     Ok(Json(serde_json::json!(
-        state.menu_service.create(
+        svc.create(
             dto.restaurant_id,
             &dto.name,
             dto.description.as_deref(),
@@ -22,46 +32,48 @@ pub async fn create(
 }
 
 pub async fn get(
-    State(state): State<AppState>,
+    State(svc): State<Arc<MenuService>>,
     Path(id): Path<Uuid>,
-) -> AppResult<Json<_>> {
-    Ok(Json(serde_json::json!(state.menu_service.get(id).await?)))
+) -> AppResult<Json<serde_json::Value>> {
+    Ok(Json(serde_json::json!(svc.get(id).await?)))
 }
 
 pub async fn list(
-    State(state): State<AppState>,
+    State(svc): State<Arc<MenuService>>,
     Query(q): Query<RestaurantQuery>,
     Query(p): Query<PaginationParams>,
-) -> AppResult<Json<_>> {
+) -> AppResult<Json<serde_json::Value>> {
     Ok(Json(serde_json::json!(
-        state.menu_service.list_by_restaurant(q.restaurant_id, &p).await?
+        svc.list_by_restaurant(q.restaurant_id, &p).await?
     )))
 }
 
 pub async fn set_available(
-    State(state): State<AppState>,
+    State(svc): State<Arc<MenuService>>,
     Path(id): Path<Uuid>,
     Json(dto): Json<SetAvailableDto>,
-) -> AppResult<Json<_>> {
+) -> AppResult<Json<serde_json::Value>> {
     Ok(Json(serde_json::json!(
-        state.menu_service.set_available(id, dto.available).await?
+        svc.set_available(id, dto.available).await?
     )))
 }
 
 pub async fn update_price(
-    State(state): State<AppState>,
+    State(svc): State<Arc<MenuService>>,
     Path(id): Path<Uuid>,
     Json(dto): Json<UpdatePriceDto>,
-) -> AppResult<Json<_>> {
+) -> AppResult<Json<serde_json::Value>> {
     Ok(Json(serde_json::json!(
-        state.menu_service.update_price(id, dto.price).await?
+        svc.update_price(id, dto.price).await?
     )))
 }
 
 pub async fn delete(
-    State(state): State<AppState>,
+    State(svc): State<Arc<MenuService>>,
     Path(id): Path<Uuid>,
 ) -> AppResult<()> {
-    state.menu_service.delete(id).await?;
+    svc.delete(id).await?;
     Ok(())
 }
+
+

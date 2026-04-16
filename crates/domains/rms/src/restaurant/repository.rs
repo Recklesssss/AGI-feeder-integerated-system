@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 use uuid::Uuid;
-use core_lib::AppResult;
+use cores::AppResult;
 use super::model::Restaurant;
 
 #[async_trait]
