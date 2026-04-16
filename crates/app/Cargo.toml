@@ -1,24 +1,29 @@
 [package]
-name = "app"
+name    = "app"
 version = "0.1.0"
-edition = "2024"
+edition = "2021"
 
 [dependencies]
-axum = { workspace = true }
-tokio = { workspace = true }
-sqlx = { workspace = true }
+axum       = { workspace = true }
+tokio      = { workspace = true }
+sqlx       = { workspace = true }
+dotenvy    = { workspace = true }
+serde_json = { workspace = true }
+uuid       = { workspace = true }
+tracing    = { workspace = true }
+tracing-subscriber = { workspace = true }
+tower-http = { workspace = true }
 
-cores = { path = "../cores" }
+cores  = { path = "../cores" }
 shared = { path = "../shared" }
-infra = { path = "../infra" }
+infra  = { path = "../infra" }
 
-auth = { path = "../domains/auth" }
-users = { path = "../domains/users" }
-rbac = { path = "../domains/rbac" }
+auth         = { path = "../domains/auth" }
+users        = { path = "../domains/users" }
+rbac         = { path = "../domains/rbac" }
 organization = { path = "../domains/organization" }
-assets = { path = "../domains/assets" }
-finance = { path = "../domains/finance" }
-pms = { path = "../domains/pms" }
-rems = { path = "../domains/rems" }
-rms = { path = "../domains/rms" }
-
+assets       = { path = "../domains/assets" }
+finance      = { path = "../domains/finance" }
+pms          = { path = "../domains/pms" }
+rems         = { path = "../domains/rems" }
+rms          = { path = "../domains/rms" }
