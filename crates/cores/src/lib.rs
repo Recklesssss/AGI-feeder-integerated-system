@@ -1,16 +1,9 @@
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
-}
 pub mod app_error;
+pub mod db_error;
 pub mod error;
+
+pub use app_error::AppError;
+pub use db_error::DbError;
+
+/// Convenience alias used across every domain and infra crate.
+pub type AppResult<T> = Result<T, AppError>;

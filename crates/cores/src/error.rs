@@ -1,4 +1,4 @@
-use crate::app_error::AppError; 
+use crate::app_error::AppError;
 use axum::{
     http::StatusCode,
     response::{IntoResponse, Response},
@@ -7,17 +7,22 @@ use axum::{
 use serde_json::json;
 
 impl IntoResponse for AppError {
-    fn into_response(self) -> Response { 
-        let (status, error_message):(StatusCode,String) = match self {
-            AppError::DbError(_msg) => (StatusCode::INTERNAL_SERVER_ERROR, "Database error".into()),
-            AppError::InvalidInput(_msg) => (StatusCode::BAD_REQUEST, "Invalid input provided".into()),
-            AppError::ConfigMissing (_msg)=> (StatusCode::NOT_FOUND,"configuration is missing".into()),
-            AppError::ConnectionTimeout (_msg)=> (StatusCode::GATEWAY_TIMEOUT, "connection timeout".into()),
-            AppError::StartupFailiure (_msg)=>(StatusCode::EXPECTATION_FAILED,"main failed to start".into()),
-            AppError::UnAuthorized(msg) => (StatusCode::FORBIDDEN,msg),
+    fn into_response(self) -> Response {
+        let (status, message): (StatusCode, String) = match self {
+            AppError::Unauthorized(m)         => (StatusCode::UNAUTHORIZED,            m),
+            AppError::Forbidden(m)            => (StatusCode::FORBIDDEN,               m),
+            AppError::Jwt(m)                  => (StatusCode::UNAUTHORIZED,            m),
+            AppError::Validation(m)           => (StatusCode::UNPROCESSABLE_ENTITY,   m),
+            AppError::InvalidInput(m)         => (StatusCode::BAD_REQUEST,             m),
+            AppError::Conflict(m)             => (StatusCode::CONFLICT,                m),
+            AppError::NotFound(m)             => (StatusCode::NOT_FOUND,               m),
+            AppError::UnprocessableEntity(m)  => (StatusCode::UNPROCESSABLE_ENTITY,   m),
+            AppError::DbError(m)              => (StatusCode::INTERNAL_SERVER_ERROR,   m),
+            AppError::ConfigMissing(m)        => (StatusCode::INTERNAL_SERVER_ERROR,   m),
+            AppError::ConnectionTimeout(m)    => (StatusCode::GATEWAY_TIMEOUT,         m),
+            AppError::StartupFailure(m)       => (StatusCode::INTERNAL_SERVER_ERROR,   m),
         };
 
-        (status, Json(json!({ "error": error_message }))).into_response()
+        (status, Json(json!({ "error": message }))).into_response()
     }
-
 }
