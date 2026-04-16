@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use validator::Validate;
 
-// ── Request DTOs ──────────────────────────────────────────────────────────
+//  Request DTOs 
 
 #[derive(Debug, Deserialize, Validate)]
 pub struct LoginRequest {
@@ -28,7 +28,7 @@ pub struct RefreshRequest {
     pub refresh_token: String,
 }
 
-// ── Response DTOs ─────────────────────────────────────────────────────────
+//  Response DTOs 
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TokenPair {

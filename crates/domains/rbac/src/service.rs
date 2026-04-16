@@ -25,7 +25,7 @@ impl RbacService {
         for key in keys {
             // TryFrom<String> is implemented in mapper.rs (type Error = RbacError)
             let perm = Permission::try_from(key)
-                .map_err(|e| AppError::from(e))?;
+                .map_err(AppError::from)?;
             permissions.insert(perm);
         }
 

@@ -4,7 +4,7 @@ use validator::Validate;
 use chrono::{DateTime, Utc};
 use crate::model::{User, UserStatus};
 
-// ── Request DTOs (only what's still needed via Json body) ─────────────────
+//  Request DTOs 
 
 #[derive(Debug, Deserialize, Serialize, Validate)]
 pub struct RegisterUser {
@@ -30,7 +30,7 @@ pub struct ChangePasswordDto {
     pub password: String,
 }
 
-// ── Response DTOs ─────────────────────────────────────────────────────────
+//  Response DTOs 
 
 #[derive(Debug, Serialize)]
 pub struct UserResponse {
@@ -47,7 +47,7 @@ pub struct ListUserResponse {
     pub count: usize,
 }
 
-// ── From impls ────────────────────────────────────────────────────────────
+//  From impls 
 
 impl From<User> for UserResponse {
     fn from(u: User) -> Self {

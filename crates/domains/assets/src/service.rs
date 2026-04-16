@@ -29,6 +29,7 @@ impl AssetService {
             status:          AssetStatus::Active,
             created_at:      Utc::now(),
             updated_at:      Utc::now(),
+            deleted_at:      None,
         };
         self.repo.create_asset(asset).await
     }

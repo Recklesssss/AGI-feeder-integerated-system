@@ -1,9 +1,7 @@
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-/// Stored authentication credentials loaded from the database.
-/// Renamed from `AuthUser` to avoid confusion with `rbac::model::AuthUser`
-/// (which represents an active session with permissions).
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AuthCredentials {
     pub id:              Uuid,

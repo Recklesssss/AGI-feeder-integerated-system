@@ -10,6 +10,7 @@ pub struct User {
     pub password_hash: String,
     pub status:        UserStatus,
     pub created_at:    DateTime<Utc>,
+    pub deleted_at:    Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]

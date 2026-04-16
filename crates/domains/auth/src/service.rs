@@ -6,7 +6,6 @@ use argon2::{
 };
 use rand_core::OsRng;
 use jsonwebtoken::{encode, decode, Header, Algorithm, Validation, EncodingKey, DecodingKey};
-use serde::{Deserialize, Serialize};
 use chrono::Utc;
 
 use cores::{AppError, AppResult};
@@ -19,7 +18,7 @@ use shared::extractors::Claims;
 const ACCESS_TTL_SECS:  i64 = 15 * 60;       // 15 min
 const REFRESH_TTL_SECS: i64 = 7 * 24 * 3600; // 7 days
 
-// ── AuthService ───────────────────────────────────────────────────────────
+//  AuthService 
 
 pub struct AuthService {
     repo:       Arc<dyn AuthRepository>,
@@ -31,7 +30,7 @@ impl AuthService {
         Self { repo, jwt_secret }
     }
 
-    // ── private helpers ───────────────────────────────────────────────────
+    //  private helpers
 
     fn make_token(&self, user_id: Uuid, org_id: Uuid, role: &str, token_type: &str, ttl: i64)
         -> AppResult<String>
@@ -75,7 +74,7 @@ impl AuthService {
         .map_err(|e| AppError::Jwt(e.to_string()))
     }
 
-    // ── public API ────────────────────────────────────────────────────────
+    // public API
 
     pub async fn login(&self, req: LoginRequest) -> AppResult<TokenPair> {
         let creds = self.repo.find_by_email(&req.email).await?

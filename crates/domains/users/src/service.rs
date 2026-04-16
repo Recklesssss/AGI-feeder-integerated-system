@@ -43,6 +43,7 @@ impl UserService {
             password_hash,
             status:        UserStatus::Active,
             created_at:    Utc::now(),
+            deleted_at:    None,
         };
 
         self.repo.register(user).await

@@ -41,3 +41,19 @@ pub struct AuthUser {
     pub id: Uuid,
     pub permissions: HashSet<Permission>,
 }
+
+/// Advanced RBAC Models for Management
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Role {
+    pub id:              Uuid,
+    pub organization_id: Uuid,
+    pub name:            String,
+    pub description:     Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct UserRole {
+    pub user_id: Uuid,
+    pub role_id: Uuid,
+}

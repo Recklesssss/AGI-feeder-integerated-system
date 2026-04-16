@@ -51,3 +51,5 @@ pub async fn activate_org(
     let org = svc.activate(id).await?;
     Ok(Json(org))
 }
+
+

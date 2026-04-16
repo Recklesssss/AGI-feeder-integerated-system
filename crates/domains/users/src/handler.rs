@@ -1,4 +1,5 @@
-use axum::{extract::{State, Path, Query}, Json, http::StatusCode};
+use axum::extract::Query;
+use axum::{extract::{State, Path, }, Json, http::StatusCode};
 use std::sync::Arc;
 use serde::Deserialize;
 use uuid::Uuid;
@@ -7,7 +8,7 @@ use cores::{AppError, AppResult};
 use crate::dto::{RegisterUser, UpdateEmailDto, ChangePasswordDto, UserResponse, ListUserResponse};
 use crate::service::UserService;
 
-// ── Query extractors ───────────────────────────────────────────────────────
+//  Query extractors 
 
 #[derive(Debug, Deserialize)]
 pub struct EmailQuery {
@@ -23,7 +24,7 @@ pub struct ListQuery {
 }
 fn default_limit() -> u32 { 20 }
 
-// ── Handlers ───────────────────────────────────────────────────────────────
+//  Handlers 
 
 pub async fn register_handler(
     State(svc): State<Arc<UserService>>,
@@ -113,3 +114,4 @@ pub async fn delete_user_handler(
     svc.delete_user(id).await?;
     Ok(StatusCode::NO_CONTENT)
 }
+

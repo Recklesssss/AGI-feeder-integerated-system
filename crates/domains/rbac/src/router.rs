@@ -5,7 +5,6 @@ use super::handler;
 use super::service::RbacService;
 
 /// RBAC admin routes — mount under /api/v1/admin/rbac.
-/// These endpoints should be protected by superadmin permission check (T-02).
 pub fn routes<S>() -> Router<S>
 where
     S: Clone + Send + Sync + 'static,
