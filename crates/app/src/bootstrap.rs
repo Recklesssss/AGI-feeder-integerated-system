@@ -2,7 +2,7 @@ use std::sync::Arc;
 use sqlx::PgPool;
 use dotenvy::dotenv;
 
-// ── Infra repository implementations ──────────────────────────────────────
+// Infra repository implementations 
 use infra::postgres_auth_repository::PgAuthRepository;
 use infra::postgres_user_repository::PostgresUserRepository;
 use infra::postgres_rbac_repository::PgRbacRepository;
@@ -13,8 +13,9 @@ use infra::postgres_listing_repository::PgListingRepository;
 use infra::postgres_invoice_repository::PgInvoiceRepository;
 use infra::postgres_ledger_repository::PgLedgerRepository;
 use infra::postgres_payment_repository::PgPaymentRepository;
+use infra::postgres_audit_repository::PgAuditRepository;
 
-// ── Domain services ────────────────────────────────────────────────────────
+//  Domain services 
 use auth::service::AuthService;
 use users::service::UserService;
 use rbac::service::RbacService;
@@ -25,6 +26,22 @@ use rems::listing::service::ListingService;
 use finance::invoice::service::InvoiceService;
 use finance::ledger::service::LedgerService;
 use finance::payment::service::PaymentService;
+use audit::service::AuditService;
+use infra::postgres_pms_repository::*;
+use infra::postgres_rms_repository::*;
+use infra::postgres_rems_repository::*;
+use pms::property::service::PropertyService;
+use pms::unit::service::UnitService;
+use pms::tenant::service::TenantService;
+use pms::lease::service::LeaseService;
+use pms::maintenance::service::MaintenanceService;
+use rms::restaurant::service::RestaurantService;
+use rms::menu::service::MenuService;
+use rms::order::service::OrderService;
+use rms::inventory::service::InventoryService;
+use rms::stock::service::StockService;
+use rems::deal::service::DealService;
+use rems::commission::service::CommissionService;
 
 use crate::state::AppState;
 
@@ -73,6 +90,24 @@ pub async fn create_app_state() -> AppState {
     let payment_service = Arc::new(PaymentService::new(
         Arc::new(PgPaymentRepository { db: pool.clone() }),
     ));
+    let audit_service = Arc::new(AuditService::new(
+        Arc::new(PgAuditRepository   { db: pool.clone() }),
+    ));
+
+    let property_service = Arc::new(PropertyService::new(Arc::new(PgPropertyRepository::new(pool.clone()))));
+    let unit_service = Arc::new(UnitService::new(Arc::new(PgUnitRepository::new(pool.clone()))));
+    let tenant_service = Arc::new(TenantService::new(Arc::new(PgTenantRepository::new(pool.clone()))));
+    let lease_service = Arc::new(LeaseService::new(Arc::new(PgLeaseRepository::new(pool.clone()))));
+    let maintenance_service = Arc::new(MaintenanceService::new(Arc::new(PgMaintenanceRepository::new(pool.clone()))));
+
+    let restaurant_service = Arc::new(RestaurantService::new(Arc::new(PgRestaurantRepository::new(pool.clone()))));
+    let menu_service = Arc::new(MenuService::new(Arc::new(PgMenuRepository::new(pool.clone()))));
+    let order_service = Arc::new(OrderService::new(Arc::new(PgOrderRepository::new(pool.clone())), Arc::new(PgMenuRepository::new(pool.clone()))));
+    let inventory_service = Arc::new(InventoryService::new(Arc::new(PgInventoryRepository::new(pool.clone()))));
+    let stock_service = Arc::new(StockService::new(Arc::new(PgStockRepository::new(pool.clone())), Arc::new(PgInventoryRepository::new(pool.clone()))));
+
+    let deal_service = Arc::new(DealService::new(Arc::new(PgDealRepository::new(pool.clone()))));
+    let commission_service = Arc::new(CommissionService::new(Arc::new(PgCommissionRepository::new(pool.clone()))));
 
     AppState {
         db_pool: pool.clone(),
@@ -86,5 +121,19 @@ pub async fn create_app_state() -> AppState {
         invoice_service,
         ledger_service,
         payment_service,
+        audit_service,
+        property_service,
+        unit_service,
+        tenant_service,
+        lease_service,
+        maintenance_service,
+        restaurant_service,
+        menu_service,
+        order_service,
+        inventory_service,
+        stock_service,
+        deal_service,
+        commission_service,
     }
 }
+

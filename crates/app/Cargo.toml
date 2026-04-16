@@ -27,3 +27,4 @@ finance      = { path = "../domains/finance" }
 pms          = { path = "../domains/pms" }
 rems         = { path = "../domains/rems" }
 rms          = { path = "../domains/rms" }
+audit        = { path = "../domains/audit" }

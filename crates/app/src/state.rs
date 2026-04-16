@@ -11,6 +11,19 @@ use rems::listing::service::ListingService;
 use finance::invoice::service::InvoiceService;
 use finance::ledger::service::LedgerService;
 use finance::payment::service::PaymentService;
+use audit::service::AuditService;
+use pms::property::service::PropertyService;
+use pms::unit::service::UnitService;
+use pms::tenant::service::TenantService;
+use pms::lease::service::LeaseService;
+use pms::maintenance::service::MaintenanceService;
+use rms::restaurant::service::RestaurantService;
+use rms::menu::service::MenuService;
+use rms::order::service::OrderService;
+use rms::inventory::service::InventoryService;
+use rms::stock::service::StockService;
+use rems::deal::service::DealService;
+use rems::commission::service::CommissionService;
 
 use sqlx::PgPool;
 
@@ -28,9 +41,22 @@ pub struct AppState {
     pub invoice_service: Arc<InvoiceService>,
     pub ledger_service:  Arc<LedgerService>,
     pub payment_service: Arc<PaymentService>,
+    pub audit_service:   Arc<AuditService>,
+    pub property_service:    Arc<PropertyService>,
+    pub unit_service:        Arc<UnitService>,
+    pub tenant_service:      Arc<TenantService>,
+    pub lease_service:       Arc<LeaseService>,
+    pub maintenance_service: Arc<MaintenanceService>,
+    pub restaurant_service:  Arc<RestaurantService>,
+    pub menu_service:        Arc<MenuService>,
+    pub order_service:       Arc<OrderService>,
+    pub inventory_service:   Arc<InventoryService>,
+    pub stock_service:       Arc<StockService>,
+    pub deal_service:        Arc<DealService>,
+    pub commission_service:  Arc<CommissionService>,
 }
 
-// ── FromRef implementations ────────────────────────────────────────────────
+// FromRef implementations and clone for explicit defination
 
 impl FromRef<AppState> for Arc<AuthService> {
     fn from_ref(s: &AppState) -> Self { s.auth_service.clone() }
@@ -62,3 +88,19 @@ impl FromRef<AppState> for Arc<LedgerService> {
 impl FromRef<AppState> for Arc<PaymentService> {
     fn from_ref(s: &AppState) -> Self { s.payment_service.clone() }
 }
+impl FromRef<AppState> for Arc<AuditService> {
+    fn from_ref(s: &AppState) -> Self { s.audit_service.clone() }
+}
+
+impl FromRef<AppState> for Arc<PropertyService> { fn from_ref(s: &AppState) -> Self { s.property_service.clone() } }
+impl FromRef<AppState> for Arc<UnitService> { fn from_ref(s: &AppState) -> Self { s.unit_service.clone() } }
+impl FromRef<AppState> for Arc<TenantService> { fn from_ref(s: &AppState) -> Self { s.tenant_service.clone() } }
+impl FromRef<AppState> for Arc<LeaseService> { fn from_ref(s: &AppState) -> Self { s.lease_service.clone() } }
+impl FromRef<AppState> for Arc<MaintenanceService> { fn from_ref(s: &AppState) -> Self { s.maintenance_service.clone() } }
+impl FromRef<AppState> for Arc<RestaurantService> { fn from_ref(s: &AppState) -> Self { s.restaurant_service.clone() } }
+impl FromRef<AppState> for Arc<MenuService> { fn from_ref(s: &AppState) -> Self { s.menu_service.clone() } }
+impl FromRef<AppState> for Arc<OrderService> { fn from_ref(s: &AppState) -> Self { s.order_service.clone() } }
+impl FromRef<AppState> for Arc<InventoryService> { fn from_ref(s: &AppState) -> Self { s.inventory_service.clone() } }
+impl FromRef<AppState> for Arc<StockService> { fn from_ref(s: &AppState) -> Self { s.stock_service.clone() } }
+impl FromRef<AppState> for Arc<DealService> { fn from_ref(s: &AppState) -> Self { s.deal_service.clone() } }
+impl FromRef<AppState> for Arc<CommissionService> { fn from_ref(s: &AppState) -> Self { s.commission_service.clone() } }
