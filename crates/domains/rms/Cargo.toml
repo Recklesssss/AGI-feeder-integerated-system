@@ -1,9 +1,9 @@
 [package]
-name = "rms"
+name    = "rms"
 version = "0.1.0"
-edition = "2024"
+edition = "2021"
 
 [dependencies]
-cores = { path = "../../cores" }
+cores  = { path = "../../cores" }
 shared = { path = "../../shared" }
-serde = { workspace = true }
+serde  = { workspace = true }

@@ -1,15 +1,6 @@
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
-}
 pub mod error;
+pub mod client;
+pub mod listing;
+// pub mod deal;        // TODO: implement deal sub-domain
+// pub mod commission;  // TODO: implement commission sub-domain
+pub mod router;
