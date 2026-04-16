@@ -1,10 +1,14 @@
 [package]
-name = "assets"
+name    = "assets"
 version = "0.1.0"
-edition = "2024"
+edition = "2021"
 
 [dependencies]
-cores = { path = "../../cores" }
-shared = { path = "../../shared" }
-serde = { workspace = true }
-
+cores       = { path = "../../cores" }
+shared      = { path = "../../shared" }
+serde       = { workspace = true }
+thiserror   = { workspace = true }
+uuid        = { workspace = true }
+chrono      = { workspace = true }
+async-trait = { workspace = true }
+axum        = { workspace = true }

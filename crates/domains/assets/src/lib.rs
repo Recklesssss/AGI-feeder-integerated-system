@@ -1,14 +1,7 @@
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
-}
+pub mod model;
+pub mod repository;
+pub mod service;
+pub mod handler;
+pub mod router;
+pub mod dto;
+// Note: no pub mod error — assets uses cores::AppError directly
