@@ -1,110 +1,115 @@
-use axum::{extract::State, Json, http::StatusCode};
-use crate::dto::{RegisterUser, GetByEmail, GetById, UpdateEmail, ChangePassword, LockUser, UnlockUser, SuspendUser, DeleteUser, ListUser};
-use crate::service::UserService;
-use cores::app_error::AppError;
-use validator::Validate;
+use axum::{extract::{State, Path, Query}, Json, http::StatusCode};
 use std::sync::Arc;
+use serde::Deserialize;
+use uuid::Uuid;
+
+use cores::{AppError, AppResult};
+use crate::dto::{RegisterUser, UpdateEmailDto, ChangePasswordDto, UserResponse, ListUserResponse};
+use crate::service::UserService;
+
+// ── Query extractors ───────────────────────────────────────────────────────
+
+#[derive(Debug, Deserialize)]
+pub struct EmailQuery {
+    pub email: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ListQuery {
+    #[serde(default = "default_limit")]
+    pub limit:  u32,
+    #[serde(default)]
+    pub offset: u32,
+}
+fn default_limit() -> u32 { 20 }
+
+// ── Handlers ───────────────────────────────────────────────────────────────
 
 pub async fn register_handler(
-    State(user_service): State<Arc<UserService>>, 
-    Json(payload): Json<RegisterUser>,   
-) -> Result<(StatusCode, Json<RegisterUser>), AppError> {
-    
-    payload.validate().map_err(AppError::from)?;
-
-    let new_user = user_service.register(payload.email, payload.password, payload.full_name).await?;
-
-    Ok((StatusCode::CREATED, Json(RegisterUser::from(new_user))))
+    State(svc): State<Arc<UserService>>,
+    Json(payload): Json<RegisterUser>,
+) -> AppResult<(StatusCode, Json<UserResponse>)> {
+    use validator::Validate;
+    payload.validate().map_err(|e| AppError::Validation(e.to_string()))?;
+    let user = svc.register(payload.email, payload.password, payload.full_name).await?;
+    Ok((StatusCode::CREATED, Json(UserResponse::from(user))))
 }
-pub async fn get_by_email_handler (
 
-    State(user_service):State<Arc<UserService>>,
-
-    Json(payload):Json<GetByEmail>,
-
-)->Result<(StatusCode, Json<GetByEmail>), AppError> {
-
-    payload.validate().map_err(AppError::from)?;
-
-    let user = user_service.get_by_email(payload.email).await?;
-
-    Ok((StatusCode::CREATED, Json(GetByEmail::from(user))))
+pub async fn get_by_id_handler(
+    State(svc): State<Arc<UserService>>,
+    Path(id): Path<Uuid>,
+) -> AppResult<Json<UserResponse>> {
+    let user = svc.get_by_id(id).await?;
+    Ok(Json(UserResponse::from(user)))
 }
-pub async fn get_by_id_handler (
-    State(user_service): State<Arc<UserService>>, 
 
-    Json(payload): Json<GetById>
-)-> Result<(StatusCode, Json<GetById>), AppError>{
+pub async fn get_by_email_handler(
+    State(svc): State<Arc<UserService>>,
+    Query(q): Query<EmailQuery>,
+) -> AppResult<Json<UserResponse>> {
+    let user = svc.get_by_email(q.email).await?
+        .ok_or_else(|| AppError::NotFound("User not found".into()))?;
+    Ok(Json(UserResponse::from(user)))
+}
 
-    let user = user_service.get_by_id(payload.id).await?;
-
-    Ok((StatusCode::CREATED, Json(GetById::from(user))))
+pub async fn list_users_handler(
+    State(svc): State<Arc<UserService>>,
+    Query(q): Query<ListQuery>,
+) -> AppResult<Json<ListUserResponse>> {
+    let users = svc.list_user(q.limit).await?;
+    Ok(Json(ListUserResponse::from(users)))
 }
 
 pub async fn update_email_handler(
-    State(user_service):State<Arc<UserService>>
-    , Json(payload): Json<UpdateEmail>
-)-> Result<(StatusCode), AppError> {
-
-    payload.validate().map_err(AppError::from)?;
-    
-    let user = user_service.update_email(payload.email).await?;
-    Ok((StatusCode::Ok))
+    State(svc): State<Arc<UserService>>,
+    Path(id): Path<Uuid>,
+    Json(body): Json<UpdateEmailDto>,
+) -> AppResult<Json<UserResponse>> {
+    use validator::Validate;
+    body.validate().map_err(|e| AppError::Validation(e.to_string()))?;
+    let user = svc.update_email(id, body.email).await?;
+    Ok(Json(UserResponse::from(user)))
 }
 
 pub async fn change_password_handler(
-    State(user_service) : State<Arc<UserService>>,
-    Json(payload): Json<ChangePassword>
-)->Result<(StatusCode),AppError>{
-    let user = user_service(payload.id,payload.password).await?;
-    Ok((StatusCode::Ok))
+    State(svc): State<Arc<UserService>>,
+    Path(id): Path<Uuid>,
+    Json(body): Json<ChangePasswordDto>,
+) -> AppResult<StatusCode> {
+    use validator::Validate;
+    body.validate().map_err(|e| AppError::Validation(e.to_string()))?;
+    svc.change_password(id, body.password).await?;
+    Ok(StatusCode::NO_CONTENT)
 }
 
 pub async fn lock_user_handler(
-    State(user_service) : State<Arc<UserService>>,
-    Json(payload): Json<LockUser>
-)-> Result<(StatusCode), AppError>{
-    let user = user_service.lock_user(payload.id).await?;
-    Ok((StatusCode::Ok))    
+    State(svc): State<Arc<UserService>>,
+    Path(id): Path<Uuid>,
+) -> AppResult<StatusCode> {
+    svc.lock_user(id).await?;
+    Ok(StatusCode::NO_CONTENT)
 }
 
 pub async fn unlock_user_handler(
-    State(user_service) : State<Arc<UserService>>,
-    Json(payload): Json<UnlockUser>
-)-> Result<(StatusCode), AppError>{
-    let user = user_service.unlock_user(payload.id).await?;
-    Ok((StatusCode::Ok))    
-} 
+    State(svc): State<Arc<UserService>>,
+    Path(id): Path<Uuid>,
+) -> AppResult<StatusCode> {
+    svc.unlock_user(id).await?;
+    Ok(StatusCode::NO_CONTENT)
+}
 
 pub async fn suspend_user_handler(
-    State(user_service) : State<Arc<UserService>>,
-    Json(payload): Json<SuspendUser>
-)-> Result<(StatusCode), AppError>{
-    let user = user_service.suspend_user(payload.id).await?;
-    Ok((StatusCode::Ok))    
+    State(svc): State<Arc<UserService>>,
+    Path(id): Path<Uuid>,
+) -> AppResult<StatusCode> {
+    svc.suspend_user(id).await?;
+    Ok(StatusCode::NO_CONTENT)
 }
 
 pub async fn delete_user_handler(
-    State(user_service) : State<Arc<UserService>>,
-    Json(payload): Json<DeleteUser>
-)-> Result<(StatusCode), AppError>{
-    let user = user_service.delete_user(payload.id).await?;
-    Ok((StatusCode::Ok))    
-}
-
-pub async fn delete_user_handler(
-    State(user_service) : State<Arc<UserService>>,
-    Json(payload): Json<DeleteUser>
-)-> Result<(StatusCode), AppError>{
-    let user = user_service.delete_user(payload.id).await?;
-    Ok((StatusCode::Ok))    
-}
-
-pub async fn list_user_handler(
-    State(user_service) : State<Arc<UserService>>,
-    Json(payload): Json<ListUser>
-)-> Result<(StatusCode, Json<ListUser>), AppError>{
-    let user = user_service.list_user(payload.limit).await?;
-
-    Ok((StatusCode::Ok, Json(ListUser::from(user))))    
+    State(svc): State<Arc<UserService>>,
+    Path(id): Path<Uuid>,
+) -> AppResult<StatusCode> {
+    svc.delete_user(id).await?;
+    Ok(StatusCode::NO_CONTENT)
 }
