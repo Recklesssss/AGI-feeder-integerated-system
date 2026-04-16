@@ -45,6 +45,7 @@ fn map_row(row: &sqlx::postgres::PgRow) -> Result<User, sqlx::Error> {
         password_hash: row.try_get("password_hash")?,
         status:        status_from_str(&status_str),
         created_at:    row.try_get("created_at")?,
+        deleted_at:    row.try_get("deleted_at")?,
     })
 }
 
@@ -72,8 +73,8 @@ impl UserRepository for PostgresUserRepository {
 
     async fn get_by_id(&self, id: Uuid) -> AppResult<User> {
         let row = sqlx::query(
-            "SELECT id, email, full_name, password_hash, status, created_at
-             FROM users WHERE id = $1",
+            "SELECT id, email, full_name, password_hash, status, created_at, deleted_at
+             FROM users WHERE id = $1 AND deleted_at IS NULL",
         )
         .bind(id)
         .fetch_one(&self.pool)
@@ -85,8 +86,8 @@ impl UserRepository for PostgresUserRepository {
 
     async fn get_by_email(&self, email: &str) -> AppResult<Option<User>> {
         let row = sqlx::query(
-            "SELECT id, email, full_name, password_hash, status, created_at
-             FROM users WHERE email = $1",
+            "SELECT id, email, full_name, password_hash, status, created_at, deleted_at
+             FROM users WHERE email = $1 AND deleted_at IS NULL",
         )
         .bind(email)
         .fetch_optional(&self.pool)
@@ -100,7 +101,7 @@ impl UserRepository for PostgresUserRepository {
     }
 
     async fn update_email(&self, id: Uuid, email: &str) -> AppResult<User> {
-        sqlx::query("UPDATE users SET email = $1 WHERE id = $2")
+        sqlx::query("UPDATE users SET email = $1 WHERE id = $2 AND deleted_at IS NULL")
             .bind(email)
             .bind(id)
             .execute(&self.pool)
@@ -111,7 +112,7 @@ impl UserRepository for PostgresUserRepository {
 
     async fn change_password(&self, id: Uuid, password_hash: &str) -> AppResult<User> {
         // NOTE: caller (UserService) is responsible for hashing before passing here
-        sqlx::query("UPDATE users SET password_hash = $1 WHERE id = $2")
+        sqlx::query("UPDATE users SET password_hash = $1 WHERE id = $2 AND deleted_at IS NULL")
             .bind(password_hash)
             .bind(id)
             .execute(&self.pool)
@@ -121,7 +122,7 @@ impl UserRepository for PostgresUserRepository {
     }
 
     async fn lock_user(&self, id: Uuid) -> AppResult<UserStatus> {
-        sqlx::query("UPDATE users SET status = 'locked' WHERE id = $1")
+        sqlx::query("UPDATE users SET status = 'locked' WHERE id = $1 AND deleted_at IS NULL")
             .bind(id)
             .execute(&self.pool)
             .await
@@ -130,7 +131,7 @@ impl UserRepository for PostgresUserRepository {
     }
 
     async fn unlock_user(&self, id: Uuid) -> AppResult<UserStatus> {
-        sqlx::query("UPDATE users SET status = 'active' WHERE id = $1")
+        sqlx::query("UPDATE users SET status = 'active' WHERE id = $1 AND deleted_at IS NULL")
             .bind(id)
             .execute(&self.pool)
             .await
@@ -139,7 +140,7 @@ impl UserRepository for PostgresUserRepository {
     }
 
     async fn suspend_user(&self, id: Uuid) -> AppResult<UserStatus> {
-        sqlx::query("UPDATE users SET status = 'suspended' WHERE id = $1")
+        sqlx::query("UPDATE users SET status = 'suspended' WHERE id = $1 AND deleted_at IS NULL")
             .bind(id)
             .execute(&self.pool)
             .await
@@ -148,7 +149,7 @@ impl UserRepository for PostgresUserRepository {
     }
 
     async fn delete_user(&self, id: Uuid) -> AppResult<()> {
-        sqlx::query("DELETE FROM users WHERE id = $1")
+        sqlx::query("UPDATE users SET status = 'deleted', deleted_at = NOW() WHERE id = $1 AND deleted_at IS NULL")
             .bind(id)
             .execute(&self.pool)
             .await
@@ -158,8 +159,8 @@ impl UserRepository for PostgresUserRepository {
 
     async fn list_user(&self, limit: u32) -> AppResult<Vec<User>> {
         let rows = sqlx::query(
-            "SELECT id, email, full_name, password_hash, status, created_at
-             FROM users LIMIT $1",
+            "SELECT id, email, full_name, password_hash, status, created_at, deleted_at
+             FROM users WHERE deleted_at IS NULL LIMIT $1",
         )
         .bind(limit as i64)
         .fetch_all(&self.pool)

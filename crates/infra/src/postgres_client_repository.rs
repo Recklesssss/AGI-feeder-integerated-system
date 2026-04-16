@@ -33,11 +33,12 @@ fn map_client(row: &sqlx::postgres::PgRow) -> Result<Client, sqlx::Error> {
         source:          row.try_get("source")?,
         created_at:      row.try_get("created_at")?,
         updated_at:      row.try_get("updated_at")?,
+        deleted_at:      row.try_get("deleted_at")?,
     })
 }
 
 const SELECT_COLS: &str =
-    "id, organization_id, name, email, phone, client_type, source, created_at, updated_at";
+    "id, organization_id, name, email, phone, client_type, source, created_at, updated_at, deleted_at";
 
 #[async_trait]
 impl ClientRepository for PgClientRepository {
@@ -66,7 +67,7 @@ impl ClientRepository for PgClientRepository {
     async fn find_by_id(&self, id: Uuid, org_id: Uuid) -> AppResult<Option<Client>> {
         let row = sqlx::query(&format!(
             "SELECT {SELECT_COLS} FROM clients
-             WHERE id = $1 AND organization_id = $2",
+             WHERE id = $1 AND organization_id = $2 AND deleted_at IS NULL",
         ))
         .bind(id)
         .bind(org_id)
@@ -85,7 +86,7 @@ impl ClientRepository for PgClientRepository {
     ) -> AppResult<(Vec<Client>, i64)> {
         let rows = sqlx::query(&format!(
             "SELECT {SELECT_COLS} FROM clients
-             WHERE organization_id = $1
+             WHERE organization_id = $1 AND deleted_at IS NULL
              ORDER BY created_at DESC LIMIT $2 OFFSET $3",
         ))
         .bind(org_id)
@@ -96,7 +97,7 @@ impl ClientRepository for PgClientRepository {
         .map_err(cores::AppError::from)?;
 
         let total: i64 = sqlx::query(
-            "SELECT COUNT(*) AS count FROM clients WHERE organization_id = $1",
+            "SELECT COUNT(*) AS count FROM clients WHERE organization_id = $1 AND deleted_at IS NULL",
         )
         .bind(org_id)
         .fetch_one(&self.db)
@@ -114,8 +115,8 @@ impl ClientRepository for PgClientRepository {
 
     async fn soft_delete(&self, id: Uuid, org_id: Uuid) -> AppResult<()> {
         sqlx::query(
-            "UPDATE clients SET status = 'inactive', updated_at = NOW()
-             WHERE id = $1 AND organization_id = $2",
+            "UPDATE clients SET deleted_at = NOW(), updated_at = NOW()
+             WHERE id = $1 AND organization_id = $2 AND deleted_at IS NULL",
         )
         .bind(id)
         .bind(org_id)

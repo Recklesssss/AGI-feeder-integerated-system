@@ -42,12 +42,13 @@ fn map_listing(row: &sqlx::postgres::PgRow) -> Result<Listing, sqlx::Error> {
         listed_at:       row.try_get("listed_at")?,
         created_at:      row.try_get("created_at")?,
         updated_at:      row.try_get("updated_at")?,
+        deleted_at:      row.try_get("deleted_at")?,
     })
 }
 
 const SELECT_COLS: &str =
     "id, organization_id, asset_id, title, description, price, \
-     listing_type, status, listed_at, created_at, updated_at";
+     listing_type, status, listed_at, created_at, updated_at, deleted_at";
 
 #[async_trait]
 impl ListingRepository for PgListingRepository {
@@ -77,7 +78,7 @@ impl ListingRepository for PgListingRepository {
     async fn find_by_id(&self, id: Uuid, org_id: Uuid) -> AppResult<Option<Listing>> {
         let row = sqlx::query(&format!(
             "SELECT {SELECT_COLS} FROM listings
-             WHERE id = $1 AND organization_id = $2",
+             WHERE id = $1 AND organization_id = $2 AND deleted_at IS NULL",
         ))
         .bind(id)
         .bind(org_id)
@@ -96,7 +97,7 @@ impl ListingRepository for PgListingRepository {
     ) -> AppResult<(Vec<Listing>, i64)> {
         let rows = sqlx::query(&format!(
             "SELECT {SELECT_COLS} FROM listings
-             WHERE organization_id = $1
+             WHERE organization_id = $1 AND deleted_at IS NULL
              ORDER BY created_at DESC LIMIT $2 OFFSET $3",
         ))
         .bind(org_id)
@@ -107,7 +108,7 @@ impl ListingRepository for PgListingRepository {
         .map_err(cores::AppError::from)?;
 
         let total: i64 = sqlx::query(
-            "SELECT COUNT(*) AS count FROM listings WHERE organization_id = $1",
+            "SELECT COUNT(*) AS count FROM listings WHERE organization_id = $1 AND deleted_at IS NULL",
         )
         .bind(org_id)
         .fetch_one(&self.db)
@@ -129,7 +130,7 @@ impl ListingRepository for PgListingRepository {
         let row = sqlx::query(&format!(
             "UPDATE listings
              SET status = $1, listed_at = $2, updated_at = NOW()
-             WHERE id = $3
+             WHERE id = $3 AND deleted_at IS NULL
              RETURNING {SELECT_COLS}",
         ))
         .bind(status)

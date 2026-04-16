@@ -33,11 +33,12 @@ fn map_invoice(row: &sqlx::postgres::PgRow) -> Result<Invoice, sqlx::Error> {
         status:          invoice_status_from_str(&status_str),
         issued_at:       row.try_get("issued_at")?,
         created_at:      row.try_get("created_at")?,
+        deleted_at:      row.try_get("deleted_at")?,
     })
 }
 
 const SELECT_COLS: &str =
-    "id, organization_id, asset_id, total, status, issued_at, created_at";
+    "id, organization_id, asset_id, total, status, issued_at, created_at, deleted_at";
 
 #[async_trait]
 impl InvoiceRepository for PgInvoiceRepository {
@@ -63,7 +64,7 @@ impl InvoiceRepository for PgInvoiceRepository {
 
     async fn find_by_id(&self, id: Uuid) -> AppResult<Option<Invoice>> {
         let row = sqlx::query(&format!(
-            "SELECT {SELECT_COLS} FROM invoices WHERE id = $1",
+            "SELECT {SELECT_COLS} FROM invoices WHERE id = $1 AND deleted_at IS NULL",
         ))
         .bind(id)
         .fetch_optional(&self.db)
@@ -81,7 +82,7 @@ impl InvoiceRepository for PgInvoiceRepository {
     ) -> AppResult<(Vec<Invoice>, i64)> {
         let rows = sqlx::query(&format!(
             "SELECT {SELECT_COLS} FROM invoices
-             WHERE organization_id = $1
+             WHERE organization_id = $1 AND deleted_at IS NULL
              ORDER BY created_at DESC LIMIT $2 OFFSET $3",
         ))
         .bind(org_id)
@@ -92,7 +93,7 @@ impl InvoiceRepository for PgInvoiceRepository {
         .map_err(cores::AppError::from)?;
 
         let total: i64 = sqlx::query(
-            "SELECT COUNT(*) AS count FROM invoices WHERE organization_id = $1",
+            "SELECT COUNT(*) AS count FROM invoices WHERE organization_id = $1 AND deleted_at IS NULL",
         )
         .bind(org_id)
         .fetch_one(&self.db)
@@ -111,7 +112,7 @@ impl InvoiceRepository for PgInvoiceRepository {
     async fn update_status(&self, id: Uuid, status: &str) -> AppResult<Invoice> {
         let row = sqlx::query(&format!(
             "UPDATE invoices SET status = $1
-             WHERE id = $2
+             WHERE id = $2 AND deleted_at IS NULL
              RETURNING {SELECT_COLS}",
         ))
         .bind(status)

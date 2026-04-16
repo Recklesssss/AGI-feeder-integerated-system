@@ -39,6 +39,7 @@ fn map_account(row: &sqlx::postgres::PgRow) -> Result<Account, sqlx::Error> {
         name:            row.try_get("name")?,
         account_type:    account_type_from_str(&at_str),
         created_at:      row.try_get("created_at")?,
+        deleted_at:      row.try_get("deleted_at")?,
     })
 }
 
@@ -64,7 +65,7 @@ impl LedgerRepository for PgLedgerRepository {
         let row = sqlx::query(
             "INSERT INTO accounts (id, organization_id, name, account_type)
              VALUES ($1, $2, $3, $4)
-             RETURNING id, organization_id, name, account_type, created_at",
+             RETURNING id, organization_id, name, account_type, created_at, deleted_at",
         )
         .bind(id)
         .bind(org_id)
@@ -79,8 +80,8 @@ impl LedgerRepository for PgLedgerRepository {
 
     async fn find_accounts(&self, org_id: Uuid) -> AppResult<Vec<Account>> {
         let rows = sqlx::query(
-            "SELECT id, organization_id, name, account_type, created_at
-             FROM accounts WHERE organization_id = $1 ORDER BY name",
+            "SELECT id, organization_id, name, account_type, created_at, deleted_at
+             FROM accounts WHERE organization_id = $1 AND deleted_at IS NULL ORDER BY name",
         )
         .bind(org_id)
         .fetch_all(&self.db)

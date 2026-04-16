@@ -60,6 +60,7 @@ fn map_asset(row: &sqlx::postgres::PgRow) -> Result<Asset, sqlx::Error> {
         status:          asset_status_from_str(&status_str),
         created_at:      row.try_get("created_at")?,
         updated_at:      row.try_get("updated_at")?,
+        deleted_at:      row.try_get("deleted_at")?,
     })
 }
 
@@ -88,8 +89,8 @@ impl AssetRepository for PgAssetRepository {
 
     async fn get_asset_by_id(&self, id: Uuid) -> AppResult<Option<Asset>> {
         let row = sqlx::query(
-            "SELECT id, organization_id, asset_type, name, status, created_at, updated_at
-             FROM assets WHERE id = $1",
+            "SELECT id, organization_id, asset_type, name, status, created_at, updated_at, deleted_at
+             FROM assets WHERE id = $1 AND deleted_at IS NULL",
         )
         .bind(id)
         .fetch_optional(&self.db)
@@ -104,8 +105,8 @@ impl AssetRepository for PgAssetRepository {
 
     async fn list_assets(&self, org_id: Uuid) -> AppResult<Vec<Asset>> {
         let rows = sqlx::query(
-            "SELECT id, organization_id, asset_type, name, status, created_at, updated_at
-             FROM assets WHERE organization_id = $1",
+            "SELECT id, organization_id, asset_type, name, status, created_at, updated_at, deleted_at
+             FROM assets WHERE organization_id = $1 AND deleted_at IS NULL",
         )
         .bind(org_id)
         .fetch_all(&self.db)
@@ -119,7 +120,7 @@ impl AssetRepository for PgAssetRepository {
 
     async fn update_status(&self, id: Uuid, status: String) -> AppResult<()> {
         sqlx::query(
-            "UPDATE assets SET status = $1, updated_at = $2 WHERE id = $3",
+            "UPDATE assets SET status = $1, updated_at = $2 WHERE id = $3 AND deleted_at IS NULL",
         )
         .bind(status)
         .bind(Utc::now())

@@ -13,7 +13,10 @@ rbac         = { path = "../domains/rbac" }
 organization = { path = "../domains/organization" }
 assets       = { path = "../domains/assets" }
 rems         = { path = "../domains/rems" }
+pms          = { path = "../domains/pms" }
+rms          = { path = "../domains/rms" }
 finance      = { path = "../domains/finance" }
+audit        = { path = "../domains/audit" }
 # infra-level deps:
 thiserror    = { workspace = true }
 sqlx         = { workspace = true }
@@ -21,3 +24,4 @@ uuid         = { workspace = true }
 chrono       = { workspace = true }
 async-trait  = { workspace = true }
 rust_decimal = { workspace = true }
+serde_json   = { workspace = true }

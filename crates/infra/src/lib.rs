@@ -8,3 +8,7 @@ pub mod postgres_listing_repository;
 pub mod postgres_invoice_repository;
 pub mod postgres_ledger_repository;
 pub mod postgres_payment_repository;
+pub mod postgres_audit_repository;
+pub mod postgres_pms_repository;
+pub mod postgres_rms_repository;
+pub mod postgres_rems_repository;

@@ -20,6 +20,7 @@ fn map_org(row: &sqlx::postgres::PgRow) -> Result<Organization, sqlx::Error> {
         status:     OrgStatus::from_str(&status_str),
         created_at: row.try_get("created_at")?,
         updated_at: row.try_get("updated_at")?,
+        deleted_at: row.try_get("deleted_at")?,
     })
 }
 
@@ -29,7 +30,7 @@ impl OrgRepository for PgOrgRepository {
         let row = sqlx::query(
             "INSERT INTO organizations (id, name, status)
              VALUES ($1, $2, 'active')
-             RETURNING id, name, status, created_at, updated_at",
+             RETURNING id, name, status, created_at, updated_at, deleted_at",
         )
         .bind(id)
         .bind(name)
@@ -42,8 +43,8 @@ impl OrgRepository for PgOrgRepository {
 
     async fn find_by_id(&self, id: Uuid) -> AppResult<Option<Organization>> {
         let row = sqlx::query(
-            "SELECT id, name, status, created_at, updated_at
-             FROM organizations WHERE id = $1",
+            "SELECT id, name, status, created_at, updated_at, deleted_at
+             FROM organizations WHERE id = $1 AND deleted_at IS NULL",
         )
         .bind(id)
         .fetch_optional(&self.db)
@@ -58,7 +59,8 @@ impl OrgRepository for PgOrgRepository {
 
     async fn find_all(&self, limit: i64, offset: i64) -> AppResult<(Vec<Organization>, i64)> {
         let rows = sqlx::query(
-            "SELECT id, name, status, created_at, updated_at FROM organizations
+            "SELECT id, name, status, created_at, updated_at, deleted_at FROM organizations
+             WHERE deleted_at IS NULL
              ORDER BY created_at DESC LIMIT $1 OFFSET $2",
         )
         .bind(limit)
@@ -67,7 +69,7 @@ impl OrgRepository for PgOrgRepository {
         .await
         .map_err(cores::AppError::from)?;
 
-        let total: i64 = sqlx::query("SELECT COUNT(*) as count FROM organizations")
+        let total: i64 = sqlx::query("SELECT COUNT(*) as count FROM organizations WHERE deleted_at IS NULL")
             .fetch_one(&self.db)
             .await
             .map_err(cores::AppError::from)?
@@ -83,8 +85,8 @@ impl OrgRepository for PgOrgRepository {
     async fn update_status(&self, id: Uuid, status: &str) -> AppResult<Organization> {
         let row = sqlx::query(
             "UPDATE organizations SET status = $1, updated_at = NOW()
-             WHERE id = $2
-             RETURNING id, name, status, created_at, updated_at",
+             WHERE id = $2 AND deleted_at IS NULL
+             RETURNING id, name, status, created_at, updated_at, deleted_at",
         )
         .bind(status)
         .bind(id)
@@ -96,7 +98,7 @@ impl OrgRepository for PgOrgRepository {
     }
 
     async fn soft_delete(&self, id: Uuid) -> AppResult<()> {
-        sqlx::query("UPDATE organizations SET status = 'deleted', updated_at = NOW() WHERE id = $1")
+        sqlx::query("UPDATE organizations SET status = 'deleted', deleted_at = NOW(), updated_at = NOW() WHERE id = $1 AND deleted_at IS NULL")
             .bind(id)
             .execute(&self.db)
             .await
