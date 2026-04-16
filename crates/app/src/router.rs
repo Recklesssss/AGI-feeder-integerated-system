@@ -39,8 +39,8 @@ pub fn create_router(state: AppState) -> Router {
         .nest("/api/v1/audit",         audit::router::routes())
 
         //  Stubs / Implementations pending
-        .nest("/api/v1/properties",    pms::router::routes())
-        .nest("/api/v1/rentals",       rms::router::routes())
+        .nest("/api/v1/pms",           pms::router::routes())
+        .nest("/api/v1/rms",           rms::router::routes())
 
         //  Tracing Middleware
         .layer(TraceLayer::new_for_http())
@@ -50,4 +50,5 @@ pub fn create_router(state: AppState) -> Router {
         //  Resolve all domain state
         .with_state(state)
 }
+
 
