@@ -16,7 +16,7 @@
     ·
     <a href="https://github.com/your-org/uprrms/issues">Request Feature</a>
     ·
-    <a href="https://docs.uprrms.example.com">Documentation</a>
+    <a href="./docs/TUTORIALS.md">Documentation</a>
   </p>
 
   <p align="center">
@@ -152,6 +152,17 @@ cargo run --bin app
 | **`pms`** | Property Management: Tenants, complex leases, and maintenance workflows. | Pre-Alpha |
 | **`rms`** | Restaurant Management: Advanced menu parsing, POS coordination, and inventory. | Pre-Alpha |
 | **`rems`** | Brokerage pipeline tracking: Client onboarding, deal lifecycles, & commissions. | Pre-Alpha |
+
+---
+
+## 📖 Complete Documentation Framework
+
+We utilize the Diátaxis documentation framework to support all engineering operations. Exploring the platform is simple:
+
+- **[Tutorials](./docs/TUTORIALS.md):** A 5-minute "Getting Started" guide to clone, boot, and authenticate.
+- **[How-To Guides](./docs/HOW-TO.md):** Step-by-step instructions for specific integrations (e.g., RBAC & Repositories).
+- **[Explanation](./docs/EXPLANATION.md):** Deep dives into our Architectural decisions (Monoliths, Double-Entry systems).
+- **[API Reference](./docs/REFERENCE.md):** The lookup grid mapping global extractors and trait signatures.
 
 ---
 
