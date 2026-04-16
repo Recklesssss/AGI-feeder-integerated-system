@@ -4,3 +4,24 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+# Domain crates under test
+cores        = { path = "../cores" }
+shared       = { path = "../shared" }
+auth         = { path = "../domains/auth" }
+users        = { path = "../domains/users" }
+rbac         = { path = "../domains/rbac" }
+organization = { path = "../domains/organization" }
+assets       = { path = "../domains/assets" }
+finance      = { path = "../domains/finance" }
+rems         = { path = "../domains/rems" }
+pms          = { path = "../domains/pms" }
+rms          = { path = "../domains/rms" }
+audit        = { path = "../domains/audit" }
+
+# Test utilities
+uuid         = { workspace = true }
+chrono       = { workspace = true }
+serde_json   = { workspace = true }
+rust_decimal = { workspace = true }
+tokio        = { workspace = true }
+async-trait  = { workspace = true }

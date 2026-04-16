@@ -1,14 +1,9 @@
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
-}
+//! # UPRRMS Integration Test Harness
+//!
+//! This crate provides shared test utilities, mock repositories, and
+//! integration test modules for the UPRRMS platform.
+
+pub mod mocks;
 
 #[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
-}
+mod tests;
