@@ -38,6 +38,7 @@ pub struct Account {
     pub name:            String,
     pub account_type:    AccountType,
     pub created_at:      DateTime<Utc>,
+    pub deleted_at:      Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]

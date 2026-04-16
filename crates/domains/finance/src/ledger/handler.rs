@@ -1,4 +1,5 @@
-use axum::{extract::{State, Path, Query}, Json};
+use axum::extract::Query;
+use axum::{extract::{State, Path, }, Json};
 use std::sync::Arc;
 use serde::Deserialize;
 use uuid::Uuid;
@@ -8,7 +9,7 @@ use cores::AppResult;
 use super::model::{AccountType, LedgerDirection};
 use super::service::LedgerService;
 
-// ── Request DTOs ───────────────────────────────────────────────────────────
+//  Request DTOs 
 
 #[derive(Debug, Deserialize)]
 pub struct CreateAccountDto {
@@ -42,7 +43,7 @@ pub struct EntriesQuery {
 
 fn default_limit() -> i64 { 50 }
 
-// ── Helpers ────────────────────────────────────────────────────────────────
+//  Helpers 
 
 fn parse_account_type(s: &str) -> cores::AppResult<AccountType> {
     match s {
@@ -63,7 +64,7 @@ fn parse_direction(s: &str) -> cores::AppResult<LedgerDirection> {
     }
 }
 
-// ── Handlers ───────────────────────────────────────────────────────────────
+//  Handlers 
 
 pub async fn create_account(
     State(svc): State<Arc<LedgerService>>,

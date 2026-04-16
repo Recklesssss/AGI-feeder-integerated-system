@@ -6,7 +6,6 @@ use cores::{AppError, AppResult};
 use super::model::{Payment, PaymentMethod};
 use super::repository::PaymentRepository;
 
-/// Non-generic PaymentService — uses Arc<dyn PaymentRepository>.
 pub struct PaymentService {
     repo: Arc<dyn PaymentRepository>,
 }
@@ -16,7 +15,7 @@ impl PaymentService {
         Self { repo }
     }
 
-    /// Record a payment against an invoice. Amount must be positive.
+    /// Record a payment against an invoice
     pub async fn record(
         &self,
         invoice_id: Uuid,

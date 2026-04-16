@@ -6,8 +6,6 @@ use cores::{AppError, AppResult};
 use super::model::{Invoice, InvoiceStatus};
 use super::repository::InvoiceRepository;
 
-/// Non-generic InvoiceService — uses Arc<dyn InvoiceRepository> so it can
-/// be stored directly in AppState without exposing type parameters.
 pub struct InvoiceService {
     repo: Arc<dyn InvoiceRepository>,
 }

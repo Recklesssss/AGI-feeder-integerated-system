@@ -12,6 +12,7 @@ pub struct Invoice {
     pub status:          InvoiceStatus,
     pub issued_at:       Option<NaiveDate>,
     pub created_at:      DateTime<Utc>,
+    pub deleted_at:      Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]

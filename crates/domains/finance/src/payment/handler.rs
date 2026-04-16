@@ -1,4 +1,5 @@
-use axum::{extract::{State, Path, Query}, Json};
+use axum::extract::Query;
+use axum::{extract::{State, Path, }, Json};
 use std::sync::Arc;
 use serde::Deserialize;
 use uuid::Uuid;
@@ -9,7 +10,7 @@ use cores::AppResult;
 use super::model::PaymentMethod;
 use super::service::PaymentService;
 
-// ── Request DTOs ───────────────────────────────────────────────────────────
+//  Request DTOs 
 
 #[derive(Debug, Deserialize)]
 pub struct RecordPaymentDto {
@@ -22,7 +23,7 @@ pub struct RecordPaymentDto {
 #[derive(Debug, Deserialize)]
 pub struct InvoiceQuery { pub invoice_id: Uuid }
 
-// ── Handlers ───────────────────────────────────────────────────────────────
+//  Handlers 
 
 pub async fn record(
     State(svc): State<Arc<PaymentService>>,

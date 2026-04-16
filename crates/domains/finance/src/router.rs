@@ -6,9 +6,7 @@ use crate::invoice::service::InvoiceService;
 use crate::ledger::service::LedgerService;
 use crate::payment::service::PaymentService;
 
-/// Finance router — mounts invoice, ledger, and payment sub-routers.
-/// State S must expose Arc<InvoiceService>, Arc<LedgerService>, Arc<PaymentService>
-/// via FromRef.
+
 pub fn routes<S>() -> Router<S>
 where
     S: Clone + Send + Sync + 'static,
