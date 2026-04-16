@@ -16,6 +16,7 @@ members = [
     "crates/domains/pms",
     "crates/domains/rems",
     "crates/domains/rms",
+    "crates/domains/audit",
 
     "crates/testing"
 ]
